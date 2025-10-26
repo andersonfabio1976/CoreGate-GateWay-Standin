@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+import "google/type/datetime.proto";
+import "google/type/decimal.proto";
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.infrastructure.grpc";
+option java_outer_classname = "TransactionCommandProtoFiles";
+
+// ==========================
+// Core Transaction message
+// ==========================
+
+message TransactionCommandProto {
+    string tenant_id = 1;
+    string merchant_id = 2;
+    google.type.Decimal amount = 3;
+    CurrencyCode currency = 4;
+    CardBrand brand = 5;
+    ChannelType channel = 6;
+    TransactionType type = 7;
+    Pan pan = 8;
+ }
+
+// ==========================
+// Supporting value objects
+// ==========================
+
+enum CurrencyCode {
+    BRL = 0;
+    USD = 1;
+    EUR = 2;
+}
+
+message Pan {
+    string value = 1;
+}
+
+enum ChannelType {
+    POS = 0;
+    ECOMMERCE = 1;
+    MOBILE = 2;
+    MOTO = 3;
+}
+
+enum CardBrand {
+    VISA = 0;
+    MASTERCARD = 1;
+    ELO = 2;
+    AMEX = 3;
+    HIPER = 4;
+    OTHER = 5;
+}
+
+enum TransactionType {
+    PURCHASE = 0;
+    REVERSAL = 1;
+    REFUND = 2;
+    BALANCE_INQUIRY = 3;
+    AUTHORIZATION = 4;
+    WITHDRAWAL = 5;
+}
+
+enum TransactionStatus {
+    PENDING = 0;
+    AUTHORIZED = 1;
+    REJECTED = 2;
+    SETTLED = 3;
+    CANCELED = 4;
+}
+
+// ==========================
+// Request / Response Models
+// ==========================
+message TransactionCommandProtoRequest {
+    TransactionCommandProto transaction = 1;
+}
+
+message TransactionCommandProtoResponse {
+    string transaction_id = 1;
+    TransactionStatus status = 2;
+    string authorization_code = 3;
+    string response_code = 4;
+    google.protobuf.Timestamp timestamp = 5;
+}
+
+// ==========================
+// gRPC Service
+// ==========================
+service TransactionProtoService {
+    rpc Process(TransactionCommandProtoRequest) returns (TransactionCommandProtoResponse);
+    rpc Authorize(TransactionCommandProtoRequest) returns (TransactionCommandProtoResponse);
+    rpc Settle(TransactionCommandProtoRequest) returns (TransactionCommandProtoResponse);
+}

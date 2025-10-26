@@ -1,0 +1,147 @@
+{
+  "id": null,
+  "title": "CoreGate Stand-In Performance Board",
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "5s",
+  "panels": [
+    {
+      "type": "timeseries",
+      "title": "Transactions Per Second (TPS)",
+      "id": 1,
+      "targets": [
+        { "expr": "coregate_tps_rate", "refId": "A" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "tps",
+          "color": { "mode": "continuous-GrYlRd" },
+          "custom": { "fillOpacity": 50, "lineInterpolation": "smooth" }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Latency Avg (ms)",
+      "id": 2,
+      "targets": [
+        { "expr": "coregate_latency_avg_ms", "refId": "B" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "color": { "mode": "palette-classic" },
+          "custom": { "fillOpacity": 60, "lineInterpolation": "smooth" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "orange", "value": 100 },
+              { "color": "red", "value": 300 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Success Rate (%)",
+      "id": 3,
+      "targets": [
+        { "expr": "coregate_success_rate * 100", "refId": "C" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "color": { "mode": "continuous-GrYlRd" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "orange", "value": 80 },
+              { "color": "green", "value": 95 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Timeout Count",
+      "id": 4,
+      "targets": [
+        { "expr": "increase(coregate_timeout_count[5m])", "refId": "D" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 8 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Rabbit Queue Depths",
+      "id": 5,
+      "targets": [
+        { "expr": "coregate_rabbit_queue_depth{queue=\"register\"}", "refId": "E" },
+        { "expr": "coregate_rabbit_queue_depth{queue=\"notify\"}", "refId": "F" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineInterpolation": "stepAfter" }
+        }
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 8 }
+    },
+    {
+      "type": "stat",
+      "title": "Operational Mode",
+      "id": 6,
+      "targets": [
+        { "expr": "coregate_operational_mode_state", "refId": "G" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": { "text": "GATEWAY", "color": "green" },
+                "1": { "text": "STAND-IN AUTO", "color": "orange" },
+                "2": { "text": "STAND-IN REQUESTED", "color": "red" }
+              }
+            }
+          ]
+        }
+      },
+      "options": { "colorMode": "value", "graphMode": "none", "orientation": "horizontal" },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 14 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Mode Change Over Time",
+      "id": 7,
+      "targets": [
+        { "expr": "coregate_operational_mode_state", "refId": "H" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "custom": { "lineInterpolation": "stepAfter", "fillOpacity": 40 },
+          "color": { "mode": "palette-classic" }
+        }
+      },
+      "gridPos": { "h": 6, "w": 18, "x": 6, "y": 14 }
+    }
+  ],
+  "templating": { "list": [] },
+  "annotations": { "list": [] },
+  "time": { "from": "now-15m", "to": "now" }
+}

@@ -1,0 +1,44 @@
+server:
+  port: 8083
+
+grpc:
+  client:
+    host: localhost
+    port: 8091
+  server:
+    host: localhost
+    port: 8090
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: coregate
+    password: coregate
+    listener:
+      simple:
+        auto-startup: false
+  application:
+    name: mock-issuer
+  config:
+    import: optional:classpath:/application-infrastructure.yml
+
+resilience4j:
+  retry:
+    instances:
+      rabbitPublish:
+        max-attempts: 3
+        wait-duration: 1s
+        retry-exceptions:
+          - org.springframework.amqp.AmqpException
+          - com.rabbitmq.client.ShutdownSignalException
+  circuitbreaker:
+    instances:
+      rabbitPublish:
+        register-health-indicator: true
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 5s
+        automatic-transition-from-open-to-half-open-enabled: true
+        permitted-number-of-calls-in-half-open-state: 3
+

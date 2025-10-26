@@ -1,0 +1,42 @@
+spring:
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      database: 0
+      timeout: 2000
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: pwatecnologia.2021@gmail.com
+    password: Cueva@710322
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: coregate
+    password: coregate
+
+  config:
+    import: classpath:rabbit-queues.yml, management.yml
+
+coregate:
+  mode:
+    default: GATEWAY
+    redis-key: coregate:operational-mode
+  reporting:
+    mail:
+      from: pwatecnologia.2021@gmail.com
+      to: andersonfabio.1976@gmail.com
+      subject: "[CoreGate] Relatório de Disponibilidade"
+      enabled: true

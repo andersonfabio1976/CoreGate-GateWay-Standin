@@ -1,0 +1,237 @@
+{
+  "id": null,
+  "title": "CoreGate SLA & Availability Executive Report",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "1m",
+  "timezone": "browser",
+  "templating": {
+    "list": [
+      {
+        "name": "tenant",
+        "type": "query",
+        "label": "Tenant",
+        "query": "label_values(coregate_tps_rate, tenant)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "includeAll": false,
+        "multi": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "🏁 Executive Summary",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+    },
+    {
+      "type": "stat",
+      "title": "SLA — Gateway Uptime (%)",
+      "id": 1,
+      "targets": [
+        {
+          "expr": "(1 - (sum(increase(coregate_operational_mode_state{mode=~\"STANDIN.*\"}[30d])) / sum(increase(coregate_operational_mode_state[30d])))) * 100",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 95 },
+              { "color": "orange", "value": 98 },
+              { "color": "green", "value": 99.99 }
+            ]
+          }
+        }
+      },
+      "options": { "colorMode": "value", "graphMode": "none", "justifyMode": "auto" },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 1 }
+    },
+    {
+      "type": "stat",
+      "title": "Stand-In Auto Uptime (%)",
+      "id": 2,
+      "targets": [
+        {
+          "expr": "(sum(increase(coregate_operational_mode_state{mode=\"STANDIN_AUTOMATIC\"}[30d])) / sum(increase(coregate_operational_mode_state[30d]))) * 100",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "orange", "value": 0.5 },
+              { "color": "green", "value": 2 }
+            ]
+          }
+        }
+      },
+      "options": { "colorMode": "value", "graphMode": "none" },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 1 }
+    },
+    {
+      "type": "stat",
+      "title": "Stand-In Manual (Requested) (%)",
+      "id": 3,
+      "targets": [
+        {
+          "expr": "(sum(increase(coregate_operational_mode_state{mode=\"STANDIN_REQUESTED\"}[30d])) / sum(increase(coregate_operational_mode_state[30d]))) * 100",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "orange", "value": 1 },
+              { "color": "red", "value": 3 }
+            ]
+          }
+        }
+      },
+      "options": { "colorMode": "value", "graphMode": "none" },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 1 }
+    },
+    {
+      "type": "row",
+      "title": "⚙️ Performance Indicators (Últimos 7 dias)",
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 5 }
+    },
+    {
+      "type": "gauge",
+      "title": "Average Latency (ms)",
+      "id": 4,
+      "targets": [
+        {
+          "expr": "avg(coregate_latency_avg_ms{tenant=\"$tenant\"})",
+          "refId": "D"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "max": 300,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "orange", "value": 120 },
+              { "color": "red", "value": 250 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "horizontal",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 6 }
+    },
+    {
+      "type": "gauge",
+      "title": "Success Rate (%)",
+      "id": 5,
+      "targets": [
+        {
+          "expr": "avg(coregate_success_rate{tenant=\"$tenant\"})",
+          "refId": "E"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "min": 90,
+          "max": 100,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 90 },
+              { "color": "orange", "value": 95 },
+              { "color": "green", "value": 99 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "horizontal",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 6 }
+    },
+    {
+      "type": "gauge",
+      "title": "Mean TPS (avg 5m)",
+      "id": 6,
+      "targets": [
+        {
+          "expr": "avg_over_time(coregate_tps_rate{tenant=\"$tenant\"}[5m])",
+          "refId": "F"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "tps",
+          "min": 0,
+          "max": 2000,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 100 },
+              { "color": "orange", "value": 500 },
+              { "color": "green", "value": 1000 }
+            ]
+          }
+        }
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "orientation": "horizontal",
+        "showThresholdLabels": true,
+        "showThresholdMarkers": true
+      },
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 6 }
+    },
+    {
+      "type": "timeseries",
+      "title": "Operational Mode Timeline (30d)",
+      "id": 7,
+      "targets": [
+        {
+          "expr": "coregate_operational_mode_state",
+          "legendFormat": "Mode",
+          "refId": "G"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "palette-classic" },
+          "custom": { "lineInterpolation": "stepAfter", "fillOpacity": 40 }
+        }
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 12 }
+    }
+  ],
+  "time": { "from": "now-30d", "to": "now" },
+  "annotations": { "list": [] }
+}

@@ -1,0 +1,31 @@
+server:
+  port: 8085
+
+
+spring:
+  config:
+    import: resilience4j.yml, application-infrastructure.yml
+    cloud:
+      openfeign:
+        compression:
+          request:
+            enabled: true
+          response:
+            enabled: true
+        client:
+          config:
+            issuerClient:
+              connectTimeout: 2000
+              readTimeout: 2500
+              loggerLevel: full
+
+coregate:
+  issuer:
+    url: http://localhost:9095 # URL do emissor mock
+    endpoint-authorize: /api/v1/issuer/authorize
+    health-max-fails: 3
+    health-interval-ms: 300000
+
+grpc:
+  server:
+    port: 8092

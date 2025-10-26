@@ -1,0 +1,60 @@
+# ==========================================================
+# 🧩 CONFIGURAÇÕES DO MOCK POS (SIMULADOR DE TERMINAIS)
+# ==========================================================
+# Este módulo envia mensagens ISO8583 para o gateway Ingress
+# com carga configurável, suportando modo evolutivo de stress
+# progressivo e métricas em tempo real (TPS, Latência, etc.)
+# ==========================================================
+
+server:
+  port: 1100
+
+spring:
+  application:
+    name: mock-issuer
+  config:
+    import: optional:classpath:/application-infrastructure.yml
+
+mockpos:
+  # 🔹 Host e porta do servidor Ingress (Netty)
+  host: localhost
+  port: 8583
+
+  # 🔹 Quantidade inicial de terminais (POS) simulados
+  pos:
+    count: 10
+
+  # 🔹 Quantidade de mensagens enviadas por cada POS
+  messages:
+    per:
+      pos: 1
+
+  # 🔹 Intervalo entre os envios de mensagens por POS (em segundos)
+  interval:
+    seconds: 100
+
+  # 🔹 Timeout de resposta de socket (em milissegundos)
+  socket:
+    timeout:
+      ms: 3000
+
+  # ==========================================================
+  # 🔥 MODO EVOLUTIVO (CRESCIMENTO AUTOMÁTICO DE CARGA)
+  # ==========================================================
+  # Quando ativado, o simulador inicia com uma quantidade inicial
+  # de POS e, periodicamente, aumenta a carga em ciclos.
+  # Ideal para medir a capacidade máxima do Ingress.
+  # ==========================================================
+  evolution:
+    # Ativa ou desativa o modo evolutivo
+    enabled: true
+
+    # Quantos novos POS são adicionados a cada ciclo
+    increment: 10
+
+    # Limite máximo de POS simultâneos
+    max: 100000
+
+    # Intervalo entre cada aumento de carga (em segundos)
+    cycle:
+      seconds: 10

@@ -1,0 +1,8 @@
+br\com\coregate\context\iso8583\Iso8583MapperService.class
+br\com\coregate\context\templates\TemplateRabbitUse.class
+br\com\coregate\context\iso8583\TransactionIsoModelMapper.class
+br\com\coregate\context\server\grpc\ServerGrpcWaiting.class
+br\com\coregate\context\ContextApplication.class
+br\com\coregate\context\iso8583\TransactionIsoModel.class
+br\com\coregate\context\templates\TemplateGrpcClientUse.class
+br\com\coregate\context\templates\TemplateIsoAnnotationsUse.class

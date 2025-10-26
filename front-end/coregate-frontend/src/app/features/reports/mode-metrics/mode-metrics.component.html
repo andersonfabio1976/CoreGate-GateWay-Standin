@@ -1,0 +1,12 @@
+<div class="metrics-container" *ngIf="data.slaPercent">
+  <h2>📊 Indicadores de Disponibilidade (últimas 24h)</h2>
+
+  <table>
+    <tr><td>🟢 Gateway:</td><td>{{ data.percentageGateway | number:'1.1-1' }}%</td></tr>
+    <tr><td>🟡 Stand-In Automático:</td><td>{{ data.percentageAuto | number:'1.1-1' }}%</td></tr>
+    <tr><td>🔴 Stand-In Manual:</td><td>{{ data.percentageManual | number:'1.1-1' }}%</td></tr>
+    <tr><td>📉 Downtime total:</td><td>{{ data.totalDowntime }} min</td></tr>
+    <tr><td>⏱️ MTTR:</td><td>{{ data.meanTimeToRecovery | number:'1.1-1' }} min</td></tr>
+    <tr><td>✅ SLA Real:</td><td><strong>{{ data.slaPercent | number:'1.2-2' }}%</strong></td></tr>
+  </table>
+</div>

@@ -1,0 +1,17 @@
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\port\in\StandInEvaluationUseCase.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\service\AuthorizeTransactionService.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\port\in\AuthorizeTransactionUseCase.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\service\AdviceGenerationService.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\dto\TransactionCommandRequest.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\MainApplication.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\config\DomainBeansConfig.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\dto\TransactionCommandResponse.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\port\out\AdvicePublisherPort.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\port\out\MerchantRepositoryPort.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\dto\TransactionCommand.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\exception\BusinessException.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\port\in\AdviceGenerationUseCase.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\port\out\TransactionRepositoryPort.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\service\StandInEvaluationService.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\port\out\TenantRepositoryPort.java
+C:\DevTools\Projects\core-gate\core\application\src\main\java\br\com\coregate\application\dto\AuthorizationResult.java

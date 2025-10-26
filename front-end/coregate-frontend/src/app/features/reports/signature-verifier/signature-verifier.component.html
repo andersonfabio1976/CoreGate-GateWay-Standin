@@ -1,0 +1,49 @@
+<div class="verifier-container">
+  <h2 class="title">🔏 Verificador de Assinaturas CoreGate</h2>
+
+  <div
+    class="drop-zone"
+    (drop)="onFileDropped($event.dataTransfer.files[0])"
+    (dragover)="$event.preventDefault()"
+    (click)="fileInput.click()"
+  >
+    <input type="file" #fileInput hidden accept="application/json" (change)="onFileSelected($event)" />
+    <ng-container *ngIf="!loading && !result && !error">
+      <p>Arraste o JSON assinado aqui, ou clique para selecionar</p>
+    </ng-container>
+    <ng-container *ngIf="loading">
+      <p>⏳ Verificando assinatura digital...</p>
+    </ng-container>
+  </div>
+
+  <!-- Resultado -->
+  <div *ngIf="result" class="result-card" [ngClass]="{ valid: result.valid, invalid: !result.valid }">
+    <h3>{{ result.valid ? '✅ Assinatura Válida' : '⚠️ Assinatura Inválida' }}</h3>
+    <p><strong>Emissor:</strong> {{ result.issuer }}</p>
+    <p><strong>Algoritmo:</strong> {{ result.algorithm }}</p>
+    <p><strong>Verificado em:</strong> {{ result.verifiedAt }}</p>
+    <p><strong>Mensagem:</strong> {{ result.message }}</p>
+  </div>
+
+  <!-- Erro -->
+  <div *ngIf="error" class="error-card">
+    <h3>💥 Erro</h3>
+    <p>{{ error }}</p>
+  </div>
+
+  <mat-tab label="📜 Histórico de Modo">
+    <div class="tab-content">
+      <app-mode-history></app-mode-history>
+    </div>
+  </mat-tab>
+
+  <mat-tab label="📈 Métricas SLA">
+    <div class="tab-content">
+      <app-mode-metrics></app-mode-metrics>
+    </div>
+  </mat-tab>
+
+
+
+  <button *ngIf="result || error" (click)="reset()" class="reset-btn">Nova verificação</button>
+</div>

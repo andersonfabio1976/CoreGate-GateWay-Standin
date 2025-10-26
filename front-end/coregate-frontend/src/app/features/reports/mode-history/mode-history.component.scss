@@ -1,0 +1,25 @@
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+
+  th, td {
+    border-bottom: 1px solid #30363d;
+    padding: 0.6rem;
+    text-align: left;
+  }
+
+  th {
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+
+  tr:hover {
+    background: rgba(47, 129, 247, 0.05);
+  }
+
+  .gateway { color: #2ea043; font-weight: 600; }
+  .stand-in-automático { color: #f0b429; font-weight: 600; }
+  .stand-in-manual { color: #f85149; font-weight: 600; }
+}

@@ -1,0 +1,12 @@
+server:
+  port: 8086
+
+spring:
+  application:
+    name: mock-issuer
+  config:
+    import: optional:classpath:/application-infrastructure.yml
+
+grpc:
+  server:
+    port: 8093

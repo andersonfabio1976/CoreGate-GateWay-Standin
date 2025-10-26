@@ -1,0 +1,20 @@
+<div class="noc-status-bar">
+  <div class="left">
+    <span class="mode" [style.color]="getModeColor()">
+      ● {{ status.mode }}
+    </span>
+  </div>
+
+  <div class="center">
+    <span>⚡ TPS: <strong>{{ status.tps | number: '1.0-0' }}</strong></span>
+    <span>🕒 SLA: <strong>{{ status.sla | number: '1.2-2' }}%</strong></span>
+  </div>
+
+  <div class="noc-status-bar" [ngClass]="alertLevel">
+    ...
+  </div>
+
+  <div class="right">
+    <span class="timestamp">Última atualização: {{ status.updatedAt | date: 'HH:mm:ss' }}</span>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+br\com\coregate\finalizer\event\ModeChangePublisher$ModeChangeEvent.class
+br\com\coregate\finalizer\FinalizerApplication.class
+br\com\coregate\finalizer\client\ConnectionToIssuer.class
+br\com\coregate\finalizer\client\IssuerFeignClient.class
+br\com\coregate\finalizer\controller\ModeStatusController$ModeStatusResponse.class
+br\com\coregate\finalizer\event\ModeChangePublisher.class
+br\com\coregate\finalizer\service\HealthCheck.class
+br\com\coregate\finalizer\controller\ModeStatusController.class
+br\com\coregate\finalizer\service\FinalizerService.class

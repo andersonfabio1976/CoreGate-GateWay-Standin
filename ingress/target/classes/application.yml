@@ -1,0 +1,16 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: mock-issuer
+  config:
+    import: optional:classpath:/application-infrastructure.yml
+
+coregate:
+  ingress:
+    port: 8583
+
+  grpc:
+    host: localhost
+    port: 8090

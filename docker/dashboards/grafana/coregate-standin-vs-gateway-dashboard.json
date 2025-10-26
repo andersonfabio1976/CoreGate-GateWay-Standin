@@ -1,0 +1,208 @@
+{
+  "id": null,
+  "title": "CoreGate — Gateway vs Stand-In Auto vs Stand-In Manual",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "timezone": "browser",
+  "templating": {
+    "list": [
+      {
+        "name": "tenant",
+        "type": "query",
+        "label": "Tenant",
+        "query": "label_values(coregate_tps_rate, tenant)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "includeAll": false,
+        "multi": false
+      },
+      {
+        "name": "type",
+        "type": "query",
+        "label": "Transaction Type",
+        "query": "label_values(coregate_tps_rate, type)",
+        "datasource": {
+          "type": "prometheus",
+          "uid": "prometheus"
+        },
+        "includeAll": true,
+        "multi": false
+      }
+    ]
+  },
+  "panels": [
+    {
+      "type": "row",
+      "title": "📊 TPS Comparison",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "collapsed": false
+    },
+    {
+      "type": "bargauge",
+      "title": "TPS (Transactions Per Second)",
+      "id": 1,
+      "targets": [
+        {
+          "expr": "avg(coregate_tps_rate{tenant=\"$tenant\", type=\"$type\", mode=\"GATEWAY\"})",
+          "legendFormat": "Gateway",
+          "refId": "A"
+        },
+        {
+          "expr": "avg(coregate_tps_rate{tenant=\"$tenant\", type=\"$type\", mode=\"STANDIN_AUTOMATIC\"})",
+          "legendFormat": "Stand-In Auto",
+          "refId": "B"
+        },
+        {
+          "expr": "avg(coregate_tps_rate{tenant=\"$tenant\", type=\"$type\", mode=\"STANDIN_REQUESTED\"})",
+          "legendFormat": "Stand-In Manual",
+          "refId": "C"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "tps",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "orange", "value": 100 },
+              { "color": "green", "value": 1000 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 1 }
+    },
+    {
+      "type": "row",
+      "title": "⚙️ Latency Comparison",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 7 },
+      "collapsed": false
+    },
+    {
+      "type": "bargauge",
+      "title": "Average Latency (ms)",
+      "id": 2,
+      "targets": [
+        {
+          "expr": "avg(coregate_latency_avg_ms{tenant=\"$tenant\", type=\"$type\", mode=\"GATEWAY\"})",
+          "legendFormat": "Gateway",
+          "refId": "D"
+        },
+        {
+          "expr": "avg(coregate_latency_avg_ms{tenant=\"$tenant\", type=\"$type\", mode=\"STANDIN_AUTOMATIC\"})",
+          "legendFormat": "Stand-In Auto",
+          "refId": "E"
+        },
+        {
+          "expr": "avg(coregate_latency_avg_ms{tenant=\"$tenant\", type=\"$type\", mode=\"STANDIN_REQUESTED\"})",
+          "legendFormat": "Stand-In Manual",
+          "refId": "F"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "orange", "value": 100 },
+              { "color": "red", "value": 250 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 8 }
+    },
+    {
+      "type": "row",
+      "title": "✅ Success Rate Comparison",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 14 },
+      "collapsed": false
+    },
+    {
+      "type": "bargauge",
+      "title": "Success Rate (%)",
+      "id": 3,
+      "targets": [
+        {
+          "expr": "avg(coregate_success_rate{tenant=\"$tenant\", type=\"$type\", mode=\"GATEWAY\"})",
+          "legendFormat": "Gateway",
+          "refId": "G"
+        },
+        {
+          "expr": "avg(coregate_success_rate{tenant=\"$tenant\", type=\"$type\", mode=\"STANDIN_AUTOMATIC\"})",
+          "legendFormat": "Stand-In Auto",
+          "refId": "H"
+        },
+        {
+          "expr": "avg(coregate_success_rate{tenant=\"$tenant\", type=\"$type\", mode=\"STANDIN_REQUESTED\"})",
+          "legendFormat": "Stand-In Manual",
+          "refId": "I"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 90 },
+              { "color": "orange", "value": 97 },
+              { "color": "green", "value": 99 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 15 }
+    },
+    {
+      "type": "row",
+      "title": "🚨 Timeouts & Errors",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 21 },
+      "collapsed": false
+    },
+    {
+      "type": "bargauge",
+      "title": "Timeouts / Errors (5 min)",
+      "id": 4,
+      "targets": [
+        {
+          "expr": "sum(increase(coregate_timeout_count_total{tenant=\"$tenant\", type=\"$type\", mode=\"GATEWAY\"}[5m]))",
+          "legendFormat": "Gateway Timeouts",
+          "refId": "J"
+        },
+        {
+          "expr": "sum(increase(coregate_error_count_total{tenant=\"$tenant\", type=\"$type\", mode=\"STANDIN_AUTOMATIC\"}[5m]))",
+          "legendFormat": "Stand-In Auto Errors",
+          "refId": "K"
+        },
+        {
+          "expr": "sum(increase(coregate_error_count_total{tenant=\"$tenant\", type=\"$type\", mode=\"STANDIN_REQUESTED\"}[5m]))",
+          "legendFormat": "Stand-In Manual Errors",
+          "refId": "L"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "orange", "value": 10 },
+              { "color": "red", "value": 50 }
+            ]
+          }
+        }
+      },
+      "gridPos": { "h": 6, "w": 24, "x": 0, "y": 22 }
+    }
+  ],
+  "time": { "from": "now-30m", "to": "now" },
+  "annotations": { "list": [] }
+}

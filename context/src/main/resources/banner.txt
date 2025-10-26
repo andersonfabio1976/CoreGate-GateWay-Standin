@@ -1,0 +1,20 @@
+
+---
+
+## 🖼️ **📜 banner.txt**
+
+```text
+  ____                  ____       _
+ / ___|                / ___|     | |
+| |    ___  _ __ ___  | |  __  __ _| |_ ___
+| |   / _ \| '__/ _ \ | | |_ |/ _` | __/ _ \
+| |__| (_) | | | (_   | |__| | (_| | ||  __/
+ \____\___/|_|  \___/  \____|\__,_|\__\___|
+      🚀 C O R E G A T E 🚀
+  Gateway • Stand-In • Resilience • Observability
+===================================================
+ :: Initializing CoreGate Engine ::
+ :: Loading Modules: Ingress | Context | Orchestrator | Rules ::
+ :: Starting Consul, HAProxy, RabbitMQ, Redis... ::
+ :: Monitoring via Grafana & Kibana ::
+ :: System Ready 🚀 ::

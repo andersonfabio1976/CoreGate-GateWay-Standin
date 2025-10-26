@@ -1,0 +1,8 @@
+server:
+  port: 1110
+
+spring:
+  application:
+    name: mock-issuer
+  config:
+    import: optional:classpath:/application-infrastructure.yml
