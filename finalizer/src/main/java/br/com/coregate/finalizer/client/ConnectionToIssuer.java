@@ -3,7 +3,6 @@ package br.com.coregate.finalizer.client;
 import br.com.coregate.application.dto.AuthorizationResult;
 import br.com.coregate.application.dto.TransactionCommandRequest;
 import br.com.coregate.application.dto.TransactionCommandResponse;
-import br.com.coregate.infrastructure.enums.ModeChangeEventType;
 import br.com.coregate.infrastructure.rabbitmq.RabbitFactory;
 import br.com.coregate.infrastructure.enums.RabbitQueueType;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -11,6 +10,10 @@ import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+/**
+ * 🔗 Conexão com o emissor real (via FeignClient).
+ * - Se falhar, ativa CircuitBreaker e publica evento para modo STANDIN_AUTOMATIC.
+ */
 @Slf4j
 @Service
 public class ConnectionToIssuer {
@@ -21,7 +24,7 @@ public class ConnectionToIssuer {
     public ConnectionToIssuer(IssuerFeignClient issuerFeignClient, RabbitFactory rabbitFactory) {
         this.issuerFeignClient = issuerFeignClient;
         this.rabbitFactory = rabbitFactory;
-      }
+    }
 
     @CircuitBreaker(name = "issuerClientBreaker", fallbackMethod = "fallbackToStandIn")
     @Retry(name = "issuerClientRetry")
@@ -42,16 +45,19 @@ public class ConnectionToIssuer {
         }
     }
 
-    // Fallback chamado se o circuito estiver aberto ou após 3 falhas
+    /**
+     * 🧩 Fallback chamado se o circuito estiver aberto ou após várias falhas consecutivas.
+     */
     public TransactionCommandResponse fallbackToStandIn(TransactionCommandRequest tx, Throwable e) {
         log.error("💥 [FINALIZER] CircuitBreaker acionado — Emissor indisponível: {}", e.getMessage());
 
-        // Change To STANDIN
-        rabbitFactory.publish(RabbitQueueType.STANDIN_AUTOMATIC, ModeChangeEventType.CHANGE_MODE_STANDIN_AUTOMATIC);
+        // ✅ Publica evento para ativar STANDIN_AUTOMATIC (modo automático)
+        rabbitFactory.publish(RabbitQueueType.STANDIN_AUTOMATIC, RabbitQueueType.STANDIN_AUTOMATIC.name());
 
         AuthorizationResult result = AuthorizationResult.builder()
                 .responseCode("ISSUER_UNAVAILABLE")
                 .build();
+
         return TransactionCommandResponse.builder()
                 .authorizationResult(result)
                 .build();

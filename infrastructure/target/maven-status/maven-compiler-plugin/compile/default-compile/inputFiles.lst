@@ -43,6 +43,7 @@ C:\DevTools\Projects\core-gate\infrastructure\src\main\java\br\com\coregate\infr
 C:\DevTools\Projects\core-gate\infrastructure\src\main\java\br\com\coregate\infrastructure\rabbitmq\RabbitConsumers.java
 C:\DevTools\Projects\core-gate\infrastructure\src\main\java\br\com\coregate\infrastructure\rabbitmq\RabbitDeclarablesConfig.java
 C:\DevTools\Projects\core-gate\infrastructure\src\main\java\br\com\coregate\infrastructure\rabbitmq\RabbitFactory.java
+C:\DevTools\Projects\core-gate\infrastructure\src\main\java\br\com\coregate\infrastructure\rabbitmq\RabbitListenerManager.java
 C:\DevTools\Projects\core-gate\infrastructure\src\main\java\br\com\coregate\infrastructure\rabbitmq\RabbitMessagingConfig.java
 C:\DevTools\Projects\core-gate\infrastructure\src\main\java\br\com\coregate\infrastructure\rabbitmq\RabbitProduceConfig.java
 C:\DevTools\Projects\core-gate\infrastructure\src\main\java\br\com\coregate\infrastructure\rabbitmq\RabbitProperties.java

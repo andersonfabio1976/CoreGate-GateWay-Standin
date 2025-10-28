@@ -556,8 +556,8 @@
           <entry name="$MAVEN_REPOSITORY$/org/springframework/spring-jcl/6.1.12/spring-jcl-6.1.12.jar" />
         </processorPath>
         <module name="context" />
-        <module name="orchestrator" />
         <module name="ingress" />
+        <module name="orchestrator" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>

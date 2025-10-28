@@ -16,6 +16,10 @@ rabbit:
       queue: coregate.queue.mode
       exchange: coregate.exchange.mode
       routing-key: coregate.routing-key.mode
+      arguments:
+        x-message-ttl: 5000         # mensagens expiram em 5 segundos
+        x-expires: 10000            # fila expira se inativa
+        x-max-length: 5             # limita o backlog
     register:
       queue: coregate.queue.register
       exchange: coregate.exchange.register
@@ -42,6 +46,10 @@ rabbit:
       queue: coregate.queue.mode
       exchange: coregate.exchange.mode
       routing-key: coregate.routing-key.mode
+      arguments:
+        x-message-ttl: 5000         # mensagens expiram em 5 segundos
+        x-expires: 10000            # fila expira se inativa
+        x-max-length: 5             # limita o backlog
     register:
       queue: coregate.queue.register
       exchange: coregate.exchange.register

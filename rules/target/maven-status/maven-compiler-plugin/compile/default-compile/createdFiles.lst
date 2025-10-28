@@ -1,1 +1,15 @@
+br\com\coregate\rules\model\TransactionFact.class
+br\com\coregate\rules\metrics\StandinMetrics.class
+br\com\coregate\rules\events\RabbitStandinDecisionPublisher.class
+br\com\coregate\rules\repository\IdempotencyRepository.class
+br\com\coregate\rules\model\TransactionFact$TransactionFactBuilder.class
+br\com\coregate\rules\auth\DecisionOutcome.class
+br\com\coregate\rules\auth\ExternalRulesConfig.class
+br\com\coregate\rules\auth\StandinRulesEngine.class
+br\com\coregate\rules\events\StandinDecisionEvent.class
+br\com\coregate\rules\events\StandinDecisionEvent$StandinDecisionEventBuilder.class
 br\com\coregate\rules\RulesApplication.class
+br\com\coregate\rules\model\StandinDecision$StandinDecisionBuilder.class
+br\com\coregate\rules\repository\VelocityRepository.class
+br\com\coregate\rules\model\StandinDecision.class
+br\com\coregate\rules\controller\StandinRulesController.class

@@ -1,6 +1,5 @@
 package br.com.coregate.infrastructure.rabbitmq;
 
-import br.com.coregate.infrastructure.enums.ModeChangeEventType;
 import br.com.coregate.infrastructure.enums.RabbitQueueType;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
@@ -29,8 +28,8 @@ public class RabbitFactory {
         this.rabbitAdmin = rabbitAdmin;
     }
 
-    @Retry(name = "rabbitPublish", fallbackMethod = "publishFallback")
-    @CircuitBreaker(name = "rabbitPublish", fallbackMethod = "publishFallback")
+    @Retry(name = "rabbitPublish", fallbackMethod = "publishFallbackMessage")
+    @CircuitBreaker(name = "rabbitPublish", fallbackMethod = "publishFallbackMessage")
     public void publish(RabbitQueueType type, Object message) {
         String key = type.name().toLowerCase();
         RabbitProduceConfig cfg = rabbitProperties.getProduces().get(key);
@@ -56,16 +55,6 @@ public class RabbitFactory {
         }
     }
 
-    @Retry(name = "rabbitPublish", fallbackMethod = "publishFallback")
-    @CircuitBreaker(name = "rabbitPublish", fallbackMethod = "publishFallback")
-    public void publish(RabbitQueueType type, ModeChangeEventType eventType) {
-        String key = type.name().toLowerCase();
-        RabbitProduceConfig cfg = rabbitProperties.getProduces().get(key);
-        String message = eventType.name();
-        log.info("📤 Publicando evento [{}] na fila [{}]", message, cfg.getQueue());
-        rabbitTemplate.convertAndSend(cfg.getExchange(), cfg.getRoutingKey(), message);
-    }
-
     private boolean isNotFoundExchange(Throwable ex) {
         return ex.getMessage() != null && ex.getMessage().contains("no exchange");
     }
@@ -85,10 +74,11 @@ public class RabbitFactory {
                 cfg.getExchange(), cfg.getQueue(), cfg.getRoutingKey());
     }
 
-    public void publishFallback(RabbitQueueType type, Object message, Throwable ex) {
+    public void publishFallbackMessage(RabbitQueueType type, Object message, Throwable ex) {
         System.err.printf("💥 [FALLBACK] Falha ao publicar em %s → %s%n", type, ex.getMessage());
         try (FileWriter fw = new FileWriter("rabbit-fallback.log", true)) {
             fw.write("[%s] %s%n".formatted(type, message.toString()));
         } catch (IOException ignored) {}
     }
+
 }

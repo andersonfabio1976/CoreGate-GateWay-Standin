@@ -15,7 +15,6 @@ br\com\coregate\infrastructure\reporting\ReportSignatureVerificationController.c
 br\com\coregate\infrastructure\rabbitmq\RabbitDeclarablesConfig.class
 br\com\coregate\infrastructure\grpc\TransactionCommandProtoRequest.class
 br\com\coregate\infrastructure\mapper\TransactionMapper.class
-br\com\coregate\infrastructure\rabbitmq\OperationalModeChangeListener.class
 br\com\coregate\infrastructure\mapper\CommonValueObjectMapper.class
 br\com\coregate\infrastructure\iso8583\annotations\iso\IsoVarType.class
 br\com\coregate\infrastructure\controller\NocStatusController.class
@@ -76,7 +75,6 @@ br\com\coregate\infrastructure\monitoring\AlertHistoryService.class
 br\com\coregate\infrastructure\grpc\TransactionProtoServiceGrpc$TransactionProtoServiceStub.class
 br\com\coregate\infrastructure\grpc\TransactionCommandProtoRequestOrBuilder.class
 br\com\coregate\infrastructure\grpc\TransactionProtoServiceGrpc$TransactionProtoServiceBaseDescriptorSupplier.class
-br\com\coregate\infrastructure\enums\ModeChangeEventType.class
 br\com\coregate\infrastructure\grpc\TransactionCommandProtoRequest$1.class
 br\com\coregate\infrastructure\grpc\TransactionProtoServiceGrpc$TransactionProtoServiceBlockingStub.class
 br\com\coregate\infrastructure\controller\ReportVerificationController.class
@@ -91,6 +89,7 @@ br\com\coregate\infrastructure\mode\OperationalModeMetrics.class
 br\com\coregate\infrastructure\grpc\TransactionProtoServiceGrpc$3.class
 br\com\coregate\infrastructure\grpc\TransactionProtoServiceGrpc$MethodHandlers.class
 br\com\coregate\infrastructure\grpc\TransactionProtoServiceGrpc$TransactionProtoServiceFileDescriptorSupplier.class
+br\com\coregate\infrastructure\rabbitmq\RabbitListenerManager.class
 br\com\coregate\infrastructure\mock\TransactionCommandMockBuilder.class
 br\com\coregate\infrastructure\reporting\CoreGateReportVerifier.class
 br\com\coregate\infrastructure\saga\FunctionalSaga.class

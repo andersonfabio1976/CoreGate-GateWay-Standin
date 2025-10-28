@@ -10,3 +10,29 @@ spring:
 grpc:
   server:
     port: 8093
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+rules:
+  config:
+    path: classpath:standin-rules.json   # ou file:/etc/coregate/standin-rules.json
+  events:
+    exchange: coregate.exchange.standin
+    routing-key: coregate.routing-key.standin-decision
+
+standin:
+  auto-approve-max-amount-cents: 10000
+  max-risk-score-auto-approve: 50
+  gambling-allowed: false
+  velocity-window-seconds: 60
+  velocity-max-count: 3
+  pan-daily-limit-cents: 1000000
+  mcc-blacklist:
+    - "7995"
+  mcc-whitelist:
+    - "5411"

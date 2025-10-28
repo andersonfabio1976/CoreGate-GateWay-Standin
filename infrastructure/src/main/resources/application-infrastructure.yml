@@ -26,6 +26,13 @@ spring:
     port: 5672
     username: coregate
     password: coregate
+    listener:
+      simple:
+        acknowledge-mode: auto
+        default-requeue-rejected: false
+      template:
+        mandatory: true
+      publisher-confirm-type: correlated
 
   config:
     import: classpath:rabbit-queues.yml, management.yml

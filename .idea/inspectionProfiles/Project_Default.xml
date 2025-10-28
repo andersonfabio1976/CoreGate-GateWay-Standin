@@ -1692,6 +1692,15 @@
           <option value="MockEmissor" />
           <option value="MockEmissor" />
           <option value="finalizer" />
+          <option value="rules" />
+          <option value="rules" />
+          <option value="rules" />
+          <option value="rules" />
+          <option value="rules" />
+          <option value="rules" />
+          <option value="rules" />
+          <option value="rules" />
+          <option value="rules" />
         </list>
       </option>
       <option name="ignoredPackages">
@@ -1752,10 +1761,28 @@
           <option value="org.springframework:spring-webmvc:6.1.12" />
           <option value="ch.qos.logback:logback-core:1.5.7" />
           <option value="org.springframework:spring-webmvc:6.1.12" />
+          <option value="ch.qos.logback:logback-classic:1.5.7" />
+          <option value="ch.qos.logback:logback-core:1.5.7" />
+          <option value="com.google.protobuf:protobuf-java:3.25.3" />
+          <option value="org.springframework:spring-context:6.1.12" />
+          <option value="org.springframework:spring-beans:6.1.12" />
+          <option value="org.apache.tomcat.embed:tomcat-embed-core:10.1.28" />
+          <option value="org.springframework:spring-webmvc:6.1.12" />
+          <option value="io.netty:netty-common:4.1.112.Final" />
+          <option value="io.netty:netty-handler:4.1.112.Final" />
         </list>
       </option>
       <option name="ignoredReasons">
         <list>
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
+          <option value="Not exploitable" />
           <option value="Not exploitable" />
           <option value="Not exploitable" />
           <option value="Not exploitable" />

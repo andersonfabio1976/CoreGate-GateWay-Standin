@@ -1,0 +1,10 @@
+{
+  "autoApproveMaxAmountCents": 10000,
+  "panDailyLimitCents": 200000,
+  "maxRiskScoreAutoApprove": 50,
+  "mccBlacklist": ["4829","6012","7995"],
+  "mccWhitelist": ["5411","5311","5732"],
+  "velocityWindowSeconds": 45,
+  "velocityMaxCount": 2,
+  "gamblingAllowed": false
+}

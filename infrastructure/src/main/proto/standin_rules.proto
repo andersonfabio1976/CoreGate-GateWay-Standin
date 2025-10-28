@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.rules.grpc.proto";
+option java_outer_classname = "StandinRulesProto";
+
+package standin;
+
+// Mensagem de entrada
+message TransactionFactRequest {
+    string tenantId     = 1;
+    string requestId    = 2;
+    string pan          = 3;
+    string merchantId   = 4;
+    string mcc          = 5;
+    string country      = 6;
+    bool online         = 7;
+    int64 amountCents   = 8;
+    double riskScore    = 9;
+}
+
+// Mensagem de resposta
+message StandinDecisionResponse {
+    string requestId = 1;
+    string outcome   = 2;
+    string reason    = 3;
+    string authCode  = 4;
+}
+
+// Serviço gRPC
+service StandinRulesService {
+    rpc Evaluate(TransactionFactRequest) returns (StandinDecisionResponse);
+}

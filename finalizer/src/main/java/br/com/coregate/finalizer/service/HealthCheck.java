@@ -1,6 +1,5 @@
 package br.com.coregate.finalizer.service;
 
-import br.com.coregate.infrastructure.enums.ModeChangeEventType;
 import br.com.coregate.infrastructure.enums.OperationalMode;
 import br.com.coregate.infrastructure.mode.OperationalModeManager;
 import br.com.coregate.infrastructure.rabbitmq.RabbitFactory;
@@ -58,7 +57,16 @@ public class HealthCheck {
      */
     @Scheduled(fixedDelayString = "${coregate.issuer.health-interval-ms:60000}")
     public void checkIssuerHealth() {
-        if (modeManager.getMode() != OperationalMode.STANDIN_AUTOMATIC) {
+        OperationalMode current = modeManager.getMode();
+
+        // 🔒 Ignora execução se o modo estiver bloqueado manualmente
+        if (current == OperationalMode.STANDIN_REQUESTED) {
+            log.debug("⏸️ [HEALTHCHECK] Modo manual ativo — ignorando verificação.");
+            return;
+        }
+
+        // Só roda se estiver em modo automático
+        if (current != OperationalMode.STANDIN_AUTOMATIC) {
             return;
         }
 
@@ -97,6 +105,9 @@ public class HealthCheck {
         }
     }
 
+    /**
+     * ✅ Emissor voltou a responder
+     */
     private void handleIssuerRestored() {
         if (failCount > 0) {
             log.info("✅ [HEALTHCHECK] Emissor respondeu novamente. Resetando contador.");
@@ -105,19 +116,22 @@ public class HealthCheck {
 
         if (modeManager.getMode() == OperationalMode.STANDIN_AUTOMATIC) {
             log.info("🔄 [HEALTHCHECK] Emissor ativo — alternando para modo GATEWAY.");
-            rabbitFactory.publish(RabbitQueueType.GATEWAY, ModeChangeEventType.RESTORE_MODE_GATEWAY_AUTOMATIC);
+            rabbitFactory.publish(RabbitQueueType.GATEWAY, RabbitQueueType.GATEWAY.name());
+        } else {
+            log.debug("ℹ️ [HEALTHCHECK] Ignorando restauração — modo atual: {}", modeManager.getMode());
         }
     }
 
+    /**
+     * ❌ Falha de comunicação com emissor
+     */
     private void handleIssuerFailure(int statusCode) {
         failCount++;
         log.warn("⚠️ [HEALTHCHECK] Emissor não respondeu (falha #{}/{}). HTTP={}", failCount, maxFails, statusCode);
 
         if (failCount >= maxFails) {
-            log.error("💥 [HEALTHCHECK] Emissor indisponível — mantendo modo STANDIN_AUTOMATIC.");
-            rabbitFactory.publish(RabbitQueueType.STANDIN_REQUESTED, ModeChangeEventType.CHANGE_MODE_STANDIN_AUTOMATIC.name());
+            log.error("💥 [HEALTHCHECK] Emissor indisponível — publicando STANDIN_AUTOMATIC.");
+            rabbitFactory.publish(RabbitQueueType.STANDIN_AUTOMATIC, RabbitQueueType.STANDIN_AUTOMATIC.name());
         }
-        rabbitFactory.publish(RabbitQueueType.STANDIN_REQUESTED, ModeChangeEventType.CHANGE_MODE_STANDIN_REQUEST_ON.name());
     }
-
 }

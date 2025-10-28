@@ -1,5 +1,6 @@
 package br.com.coregate.infrastructure.mode;
 
+import br.com.coregate.infrastructure.enums.OperationalMode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import br.com.coregate.infrastructure.enums.OperationalMode;
 
 @Slf4j
 @Component
@@ -35,7 +35,7 @@ public class OperationalModeManager {
     public void init() {
         try {
             String persisted = redisTemplate.opsForValue().get(redisKey);
-                    OperationalMode mode = persisted != null
+            OperationalMode mode = persisted != null
                     ? OperationalMode.valueOf(persisted)
                     : OperationalMode.valueOf(defaultMode);
 
@@ -49,17 +49,25 @@ public class OperationalModeManager {
         }
     }
 
+    /** Retorna o modo atual */
     public OperationalMode getMode() {
         return currentMode.get();
     }
 
+    /** Retorna se o sistema está operando em STANDIN (qualquer tipo) */
     public boolean isStandIn() {
         return currentMode.get().isStandIn();
     }
 
+    /**
+     * Altera o modo operacional do sistema, persistindo no Redis se disponível.
+     * @param newMode Novo modo operacional desejado
+     * @param reason  Motivo da troca (para logs)
+     */
     public synchronized void switchTo(OperationalMode newMode, String reason) {
         OperationalMode current = currentMode.get();
 
+        // Protege contra troca indevida quando bloqueado manualmente
         if (current.isLockedByRequest() && newMode == OperationalMode.GATEWAY) {
             log.warn("⚠️ Ignored attempt to switch from STANDIN_REQUESTED to GATEWAY (locked by emitter)");
             return;
@@ -69,15 +77,19 @@ public class OperationalModeManager {
             currentMode.set(newMode);
             log.warn("⚙️ Operational mode changed: {} → {} | Reason: {}", current, newMode, reason);
             persistMode(newMode);
+        } else {
+            log.debug("ℹ️ Mode remains unchanged: {}", current);
         }
     }
 
+    /** Força desbloqueio manual para GATEWAY */
     public void forceGatewayUnlock(String reason) {
         currentMode.set(OperationalMode.GATEWAY);
         persistMode(OperationalMode.GATEWAY);
         log.info("🔓 Mode manually unlocked by emitter: {}", reason);
     }
 
+    /** Persiste o modo atual no Redis */
     private void persistMode(OperationalMode mode) {
         if (volatileMode.get()) {
             tryReconnectToRedis();
@@ -96,6 +108,7 @@ public class OperationalModeManager {
         }
     }
 
+    /** Tenta reconectar ao Redis caso esteja em modo volátil */
     private void tryReconnectToRedis() {
         try {
             redisTemplate.hasKey("healthcheck");
@@ -106,8 +119,8 @@ public class OperationalModeManager {
         }
     }
 
+    /** Indica se o modo volátil (sem Redis) está ativo */
     public boolean isVolatileCacheActive() {
         return volatileMode.get();
     }
-
 }
