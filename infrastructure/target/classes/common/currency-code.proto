@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package br.com.coregate.infrastructure;
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.proto.common";
+option java_outer_classname = "CurrencyCodeProto";
+
+/**
+ * 💱 CurrencyCode — Código da moeda conforme ISO 4217 (campo 49 ISO8583)
+ */
+enum CurrencyCode {
+    CURRENCY_UNKNOWN = 0;
+    BRL = 986;
+    USD = 840;
+    EUR = 978;
+    GBP = 826;
+    JPY = 392;
+    CHF = 756;
+    CAD = 124;
+    AUD = 36;
+    CNY = 156;
+    ARS = 32;
+    CLP = 152;
+    MXN = 484;
+    PEN = 604;
+    COP = 170;
+    UYU = 858;
+    PYG = 600;
+    BOB = 68;
+    ZAR = 710;
+    INR = 356;
+    RUB = 643;
+    KRW = 410;
+    AED = 784;
+    TRY = 949;
+}

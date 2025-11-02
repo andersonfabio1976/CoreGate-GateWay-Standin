@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package br.com.coregate.infrastructure;
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.proto.common";
+option java_outer_classname = "ChannelTypeProto";
+
+/**
+ * 🌐 ChannelType — Canal de origem da transação (campo 25 / 60.x ISO8583)
+ */
+enum ChannelType {
+    CHANNEL_UNKNOWN = 0;
+    POS_MAGSTRIPE = 1;
+    POS_CHIP = 2;
+    POS_CONTACTLESS = 3;
+    POS_FALLBACK = 4;
+    ATM_LOCAL = 5;
+    ATM_REMOTE = 6;
+    ECOMMERCE = 7;
+    MOTO = 8;
+    MOBILE_APP = 9;
+    IN_APP_PAYMENT = 10;
+    QR_CODE = 11;
+    API_GATEWAY = 12;
+    BACKOFFICE = 13;
+    IVR = 14;
+    TERMINAL_UNATTENDED = 15;
+}

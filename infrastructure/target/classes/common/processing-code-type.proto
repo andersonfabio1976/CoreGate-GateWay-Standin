@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package br.com.coregate.infrastructure;
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.proto.common";
+option java_outer_classname = "ProcessingCodeTypeProto";
+
+/**
+ * 💳 Processing Code (campo 3 ISO8583)
+ * Define o tipo de operação financeira.
+ */
+enum ProcessingCodeType {
+    PROCESSING_CODE_UNKNOWN = 0;
+    PURCHASE_DEBIT = 1;
+    PURCHASE_CREDIT = 2;
+    PURCHASE_INSTALLMENT = 3;
+    PURCHASE_CASHBACK = 4;
+    CASH_WITHDRAWAL = 5;
+    CASH_ADVANCE = 6;
+    BILL_PAYMENT = 7;
+    FUNDS_TRANSFER = 8;
+    BALANCE_INQUIRY = 9;
+    PRE_AUTH = 10;
+    PRE_AUTH_CAPTURE = 11;
+    PRE_AUTH_CANCEL = 12;
+    REVERSAL = 13;
+    PARTIAL_REVERSAL = 14;
+    CHARGEBACK = 15;
+    RELOAD_PREPAID = 16;
+    ECHO_TEST = 17;
+    LOAN_PAYMENT = 18;
+    FUNDS_TRANSFER_SAVINGS = 19;
+    STATEMENT_INQUIRY = 20;
+    REVERSAL_PRE_AUTH = 21;
+}

@@ -32,6 +32,13 @@
             <artifactId>spring-context</artifactId>
         </dependency>
 
+        <!-- 🧩 Netty (socket server NIO para ISO8583) -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.1.111.Final</version>
+        </dependency>
+
         <!-- Spring TX (para @Transactional) -->
         <dependency>
             <groupId>org.springframework</groupId>

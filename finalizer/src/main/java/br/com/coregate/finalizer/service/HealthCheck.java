@@ -4,8 +4,7 @@ import br.com.coregate.infrastructure.enums.OperationalMode;
 import br.com.coregate.infrastructure.mode.OperationalModeManager;
 import br.com.coregate.infrastructure.rabbitmq.RabbitFactory;
 import br.com.coregate.infrastructure.enums.RabbitQueueType;
-import br.com.coregate.application.dto.TransactionCommandRequest;
-import br.com.coregate.application.dto.TransactionCommand;
+import br.com.coregate.application.dto.transaction.TransactionCommand;
 import br.com.coregate.domain.enums.*;
 import br.com.coregate.domain.vo.Pan;
 import lombok.extern.slf4j.Slf4j;
@@ -74,22 +73,20 @@ public class HealthCheck {
 
         try {
             // Monta um request dummy leve
-            TransactionCommandRequest dummy = new TransactionCommandRequest(
-                    TransactionCommand.builder()
+            TransactionCommand dummy = TransactionCommand.builder()
                             .tenantId("HEALTHCHECK")
                             .merchantId("HEALTHCHECK-MERCHANT")
                             .amount(BigDecimal.valueOf(1.00))
                             .currency(CurrencyCode.BRL)
-                            .brand(CardBrand.VISA)
+                            .brand(CardBrandType.VISA)
                             .channel(ChannelType.ECOMMERCE)
-                            .type(TransactionType.PURCHASE)
+                            .type(TransactionType.TRANSACTION_TYPE_PURCHASE)
                             .pan(Pan.of("4111111111111111"))
-                            .build()
-            );
+                            .build();
 
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            HttpEntity<TransactionCommandRequest> entity = new HttpEntity<>(dummy, headers);
+            HttpEntity<TransactionCommand> entity = new HttpEntity<>(dummy, headers);
 
             ResponseEntity<String> response = restTemplate.exchange(
                     issuerUrl + endPoint, HttpMethod.POST, entity, String.class);

@@ -1,7 +1,7 @@
 package br.com.coregate.infrastructure.mock;
 
-import br.com.coregate.application.dto.TransactionCommand;
-import br.com.coregate.domain.enums.CardBrand;
+import br.com.coregate.application.dto.transaction.TransactionCommand;
+import br.com.coregate.domain.enums.CardBrandType;
 import br.com.coregate.domain.enums.ChannelType;
 import br.com.coregate.domain.enums.CurrencyCode;
 import br.com.coregate.domain.enums.TransactionType;
@@ -25,15 +25,15 @@ public class TransactionCommandMockBuilder {
 
 
         TransactionCommand transaction = TransactionCommand.builder()
-                .brand(CardBrand.AMEX)
+                .brand(CardBrandType.AMEX)
                 .currency(CurrencyCode.USD)
-                .channel(ChannelType.POS)
+                .channel(ChannelType.API_GATEWAY)
                 .tenantId("tenantId")
                 .amount(new BigDecimal("1500"))
                 .merchantId("111111")
                 .pan(new Pan("111111111122"))
-                .brand(CardBrand.AMEX)
-                .type(TransactionType.PURCHASE)
+                .brand(CardBrandType.AMEX)
+                .type(TransactionType.TRANSACTION_TYPE_AUTHORIZATION)
                 .build();
         return transaction;
     }

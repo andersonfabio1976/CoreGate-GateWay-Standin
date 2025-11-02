@@ -1,6 +1,6 @@
 package br.com.coregate.rules.metrics;
 
-import br.com.coregate.rules.auth.DecisionOutcome;
+import br.com.coregate.application.dto.rules.DecisionOutcome;
 import io.micrometer.core.instrument.*;
 import org.springframework.stereotype.Component;
 

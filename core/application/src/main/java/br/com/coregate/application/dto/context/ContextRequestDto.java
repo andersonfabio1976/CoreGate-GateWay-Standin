@@ -1,0 +1,17 @@
+package br.com.coregate.application.dto.context;
+
+import br.com.coregate.application.dto.common.CoreGateContextDto;
+import lombok.Builder;
+import lombok.Data;
+
+/**
+ * Request do Ingress enviado ao Context para decodificar a ISO.
+ */
+@Builder
+@Data
+public class ContextRequestDto {
+    private CoreGateContextDto context;    // composição
+    private byte[] rawBytes;               // ISO bruto
+    private String hexString;              // ex: ISO-8859-1
+    private long receivedAtEpochMs;        // observabilidade
+}

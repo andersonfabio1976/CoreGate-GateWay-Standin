@@ -1,12 +1,12 @@
 package br.com.coregate.ingress.saga.step;
 
-import br.com.coregate.ingress.saga.service.IngressContext;
+import br.com.coregate.application.dto.context.ContextRequestDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class InitChannelStep {
 
-    public static IngressContext execute(IngressContext ctx) {
+    public static ContextRequestDto execute(ContextRequestDto ctx) {
         log.info("🚀 InitChannelStep - Inicializando canal Netty...");
         try {
             // Aqui pode ser feito handshake, validação, etc.
@@ -17,7 +17,7 @@ public class InitChannelStep {
         }
     }
 
-    public static IngressContext rollback(IngressContext ctx) {
+    public static ContextRequestDto rollback(ContextRequestDto ctx) {
         log.warn("↩️ Rollback InitChannelStep - limpando recursos do canal...");
         return ctx;
     }

@@ -1,55 +1,46 @@
 package br.com.coregate.ingress.saga.step;
 
-import br.com.coregate.infrastructure.grpc.TransactionClientServiceGrpc;
-import br.com.coregate.infrastructure.grpc.TransactionCommandProtoRequest;
-import br.com.coregate.infrastructure.mapper.TransactionMapper;
-import br.com.coregate.ingress.saga.service.IngressContext;
+import br.com.coregate.application.dto.context.ContextRequestDto;
+import br.com.coregate.application.dto.context.ContextResponseDto;
+import br.com.coregate.infrastructure.mapper.ContextMapper;
+import br.com.coregate.ingress.grpc.GrpcIngressClientService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+
 import java.io.FileWriter;
 import java.io.IOException;
 
 @Slf4j
 public class DispatchStep {
 
-    private static TransactionMapper transactionMapper;
-    private static TransactionClientServiceGrpc grpcClient;
-
-    @Autowired
-    public DispatchStep(TransactionMapper transactionMapper,
-                   TransactionClientServiceGrpc grpcClient) {
-        DispatchStep.transactionMapper = transactionMapper;
-        DispatchStep.grpcClient = grpcClient;
-    }
+    private static GrpcIngressClientService grpcContextClientService;
+    private static ContextMapper contextMapper;
 
     @Retry(name = "connectGrpcIngress", fallbackMethod = "grpcIngressFallBack")
     @CircuitBreaker(name = "connectGrpcIngress", fallbackMethod = "grpcIngressFallBack")
-    public static IngressContext execute(IngressContext ctx) {
+    public static ContextRequestDto execute(ContextRequestDto request) {
         log.info("📤 DispatchStep - Encaminhando TransactionCommand para processamento...");
         try {
-            if (ctx.getTransactionCommand() == null)
+            if (request.getRawBytes() == null)
                 throw new IllegalStateException("TransactionCommand nulo - nada a despachar.");
 
-            ///CLIENT GRPC /// TODO JUNIOR
-            //Aqui tx.getTransactionCommand() esta vindo decodificado
-            //Deve criar uma saga para decodificar ele aqui, deve vir bruto
-            //do INGRESS
-            TransactionCommandProtoRequest request = TransactionCommandProtoRequest.newBuilder()
-                            .setTransaction(transactionMapper
-                                    .toProto(ctx.getTransactionCommand()))
-                            .build();
             try {
-                var response = grpcClient.callGrpc(request, 8090);
-                log.info("Recebido do Context Response: {}", response);
+
+                var requestProto  = contextMapper.toProto(request);
+                var responseDto = contextMapper.toDto(
+                                        grpcContextClientService
+                                                .callGrpc(
+                                                        requestProto
+                                                        , 8090));
+                log.info("Recebido do Context Response: {}", responseDto.getRawBytes());
+
             } catch (Exception e) {
                 log.error("Erro ao Conectar No Grpc Server Context... ");
             }
-            /// //////////////
 
-            log.info("✅ DispatchStep - Mensagem enviada com sucesso: {}", ctx.getTransactionCommand());
-            return ctx;
+            log.info("✅ DispatchStep - Mensagem enviada com sucesso: {}", request.getRawBytes());
+            return request;
 
         } catch (Exception e) {
             log.error("❌ Falha no DispatchStep: {}", e.getMessage(), e);
@@ -57,12 +48,12 @@ public class DispatchStep {
         }
     }
 
-    public static IngressContext rollback(IngressContext ctx) {
+    public static ContextRequestDto rollback(ContextRequestDto ctx) {
         log.warn("↩️ Rollback DispatchStep - desfazendo envio RabbitMQ (noop)");
         return ctx;
     }
 
-    public void grpcIngressFallBack(IngressContext ctx, Throwable ex) {
+    public void grpcIngressFallBack(ContextResponseDto ctx, Throwable ex) {
         System.err.printf("💥 [FALLBACK] Falha ao publicar em %s → %s%n", ctx.getRawBytes(), ex.getMessage());
         try (FileWriter fw = new FileWriter("rabbit-fallback.log", true)) {
             fw.write("[%s]".formatted(ctx));

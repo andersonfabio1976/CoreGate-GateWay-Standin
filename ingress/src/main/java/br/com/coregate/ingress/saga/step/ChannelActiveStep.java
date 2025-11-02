@@ -1,6 +1,6 @@
 package br.com.coregate.ingress.saga.step;
 
-import br.com.coregate.ingress.saga.service.IngressContext;
+import br.com.coregate.application.dto.context.ContextRequestDto;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
@@ -8,10 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChannelActiveStep {
 
-    public static IngressContext execute(IngressContext ctx) {
+    public static ContextRequestDto execute(ContextRequestDto ctx) {
         try {
             // Recupera a última mensagem armazenada no atributo do canal
-            Object msg = ctx.getCtx()
+            Object msg = ctx.getContext().getChannel()
                     .channel()
                     .attr(AttributeKey.valueOf("lastMessage"))
                     .get();
@@ -32,7 +32,7 @@ public class ChannelActiveStep {
         }
     }
 
-    public static IngressContext rollback(IngressContext ctx) {
+    public static ContextRequestDto rollback(ContextRequestDto ctx) {
         log.warn("↩️ Rollback ChannelActiveStep - Limpando dados do contexto...");
         ctx.setRawBytes(null);
         return ctx;

@@ -1,8 +1,8 @@
 br\com\coregate\domain\vo\Pan.class
-br\com\coregate\domain\enums\CardBrand.class
 br\com\coregate\domain\service\StandInDomainService.class
 br\com\coregate\domain\model\TransactionApproval.class
 br\com\coregate\domain\model\Tenant$TenantBuilder.class
+br\com\coregate\domain\enums\CardBrandType.class
 br\com\coregate\domain\vo\MerchantId.class
 br\com\coregate\domain\model\Advice$AdviceBuilder.class
 br\com\coregate\domain\model\Advice.class
@@ -13,6 +13,7 @@ br\com\coregate\domain\enums\CurrencyCode.class
 br\com\coregate\domain\model\Tenant$RoutingPolicy$RoutingPolicyBuilder.class
 br\com\coregate\domain\model\Transaction.class
 br\com\coregate\domain\vo\TransactionId.class
+br\com\coregate\domain\enums\ProcessingCodeType.class
 br\com\coregate\domain\model\Tenant$RiskPolicy.class
 br\com\coregate\domain\vo\TenantId.class
 br\com\coregate\domain\enums\AdviceType.class

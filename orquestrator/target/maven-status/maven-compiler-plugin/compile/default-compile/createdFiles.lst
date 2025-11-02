@@ -1,0 +1,15 @@
+br\com\coregate\orchestrator\saga\step\End.class
+br\com\coregate\orchestrator\grpc\client\GrpcRulesClientService.class
+br\com\coregate\orchestrator\grpc\server\GrpcOrquestratorServerService.class
+br\com\coregate\orchestrator\saga\step\FetchData.class
+br\com\coregate\orchestrator\grpc\client\GrpcFinalizerClientFactory.class
+br\com\coregate\orchestrator\saga\step\Validate.class
+br\com\coregate\orchestrator\saga\step\Error.class
+br\com\coregate\orchestrator\OrquestratorApplication.class
+br\com\coregate\orchestrator\grpc\client\GrpcRulesClientFactory.class
+br\com\coregate\orchestrator\saga\step\Notify.class
+br\com\coregate\orchestrator\saga\step\Start.class
+br\com\coregate\orchestrator\saga\service\OrquestratorSagaService.class
+br\com\coregate\orchestrator\saga\step\Register.class
+br\com\coregate\orchestrator\grpc\client\GrpcFinalizerClientService.class
+br\com\coregate\orchestrator\saga\step\Process.class

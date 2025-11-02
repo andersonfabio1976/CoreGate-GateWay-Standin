@@ -1,6 +1,7 @@
 package br.com.coregate.infrastructure.mode;
 
 import br.com.coregate.infrastructure.enums.OperationalMode;
+import br.com.coregate.infrastructure.enums.ProcessingMode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -47,11 +48,6 @@ public class OperationalModeManager {
             volatileMode.set(true);
             log.warn("⚠️ Redis unavailable at startup — running in volatile cache mode (default={})", defaultMode);
         }
-    }
-
-    /** Retorna o modo atual */
-    public OperationalMode getMode() {
-        return currentMode.get();
     }
 
     /** Retorna se o sistema está operando em STANDIN (qualquer tipo) */
@@ -123,4 +119,22 @@ public class OperationalModeManager {
     public boolean isVolatileCacheActive() {
         return volatileMode.get();
     }
+    public boolean isStandin() {
+        OperationalMode mode = currentMode.get();
+        return mode == OperationalMode.STANDIN_REQUESTED
+                || mode == OperationalMode.STANDIN_AUTOMATIC;
+    }
+
+    public OperationalMode getMode() {
+        return currentMode.get();
+    }
+
+    public void setMode(OperationalMode mode) {
+        currentMode.set(mode);
+    }
+
+    public ProcessingMode getProcessingMode() {
+        return currentMode.get().toProcessingMode();
+    }
+
 }

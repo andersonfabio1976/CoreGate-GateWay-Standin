@@ -59,7 +59,7 @@ O diagrama a seguir detalha o ciclo de vida completo de uma transação no **Cor
 flowchart LR
   A[Cliente / POS / App] -->|ISO8583 / gRPC| B[Ingress]
   B --> C[Context ISO8583]
-  C --> D[Orchestrator]
+  C --> D[Orquestrator]
   D --> E[Rules]
   E --> F[Finalizer]
   D --> G[Advice]

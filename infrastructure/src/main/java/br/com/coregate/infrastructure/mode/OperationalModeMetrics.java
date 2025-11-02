@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * Exposição de métricas numéricas Prometheus para monitoramento do modo operacional.
+ * 📊 Exposição de métricas Prometheus para monitoramento do modo operacional e cache.
  */
 @Slf4j
 @Component
@@ -20,13 +20,13 @@ public class OperationalModeMetrics {
 
     @PostConstruct
     public void registerMetrics() {
-        // Métrica 1: Estado operacional
+        // Métrica 1: Estado operacional (Gateway / StandIn)
         Gauge.builder("coregate_operational_mode_state", this, instance -> mapModeToNumeric())
                 .description("Estado atual do modo operacional: 0=GATEWAY, 1=STANDIN_AUTOMATIC, 2=STANDIN_REQUESTED")
                 .tag("service", "coregate")
                 .register(meterRegistry);
 
-        // Métrica 2: Estado do cache (Redis vs Volátil)
+        // Métrica 2: Estado do cache (Redis vs In-memory)
         Gauge.builder("coregate_operational_cache_mode", this, instance -> mapCacheToNumeric())
                 .description("Modo de cache: 0=PERSISTENT (Redis), 1=VOLATILE (in-memory fallback)")
                 .tag("service", "coregate")
@@ -40,6 +40,7 @@ public class OperationalModeMetrics {
             case GATEWAY -> 0;
             case STANDIN_AUTOMATIC -> 1;
             case STANDIN_REQUESTED -> 2;
+            default -> -1; // segurança: caso novo enum apareça
         };
     }
 

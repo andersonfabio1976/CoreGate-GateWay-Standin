@@ -24,7 +24,7 @@ public class AdviceGenerationService implements AdviceGenerationUseCase {
                 .orElseThrow(() -> new IllegalArgumentException("Transação não encontrada"));
 
         Advice advice = Advice.builder()
-                .tenantId(TenantId.of(tenantId))
+                .tenantId(tenantId)
                 .transaction(txn)
                 .type(AdviceType.CLEARING)
                 .createdAt(LocalDateTime.now())

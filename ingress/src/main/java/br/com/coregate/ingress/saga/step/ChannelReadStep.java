@@ -1,6 +1,6 @@
 package br.com.coregate.ingress.saga.step;
 
-import br.com.coregate.ingress.saga.service.IngressContext;
+import br.com.coregate.application.dto.context.ContextRequestDto;
 import io.netty.buffer.ByteBuf;
 import io.netty.util.AttributeKey;
 import lombok.extern.slf4j.Slf4j;
@@ -12,17 +12,18 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ChannelReadStep {
 
-    public static IngressContext execute(IngressContext ctx) {
+    public static ContextRequestDto execute(ContextRequestDto ctx) {
         try {
             // 🔎 Tenta recuperar a última mensagem do atributo do canal
-            Object msg = ctx.getCtx()
-                    .channel()
+            Object msg = ctx.getContext()
+                    .getChannel()
                     .attr(AttributeKey.valueOf("lastMessage"))
                     .get();
 
             if (msg instanceof ByteBuf buffer) {
                 byte[] raw = new byte[buffer.readableBytes()];
                 buffer.readBytes(raw);
+
                 ctx.setRawBytes(raw);
 
                 log.info("📥 ChannelReadStep - {} bytes recebidos do canal.", raw.length);
@@ -41,7 +42,7 @@ public class ChannelReadStep {
         }
     }
 
-    public static IngressContext rollback(IngressContext ctx) {
+    public static ContextRequestDto rollback(ContextRequestDto ctx) {
         log.warn("↩️ Rollback ChannelReadStep - Limpando rawBytes do contexto.");
         ctx.setRawBytes(null);
         return ctx;

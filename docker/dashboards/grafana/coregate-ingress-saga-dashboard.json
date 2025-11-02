@@ -1,0 +1,194 @@
+{
+  "uid": "coregate-ingress-saga",
+  "title": "CoreGate — Ingress (Netty) Saga & Performance",
+  "timezone": "browser",
+  "schemaVersion": 37,
+  "refresh": "5s",
+  "time": { "from": "now-15m", "to": "now" },
+  "panels": [
+    {
+      "type": "row",
+      "title": "🧭 Visão Geral"
+    },
+    {
+      "type": "stat",
+      "title": "Conexões Abertas",
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
+      "targets": [{ "expr": "sum(coregate_ingress_channel_active)" }],
+      "fieldConfig": { "defaults": { "unit": "none" } }
+    },
+    {
+      "type": "stat",
+      "title": "TPS (Ingress)",
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
+      "targets": [{ "expr": "sum(rate(coregate_ingress_channel_read_total[1m]))" }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops/s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red", "value": 0 },
+              { "color": "orange", "value": 2 },
+              { "color": "green", "value": 5 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Falhas por Minuto",
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 },
+      "targets": [{ "expr": "sum(rate(coregate_ingress_error_total[1m]))" }],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops/s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 0.1 }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Respostas Enviadas",
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 },
+      "targets": [{ "expr": "sum(increase(coregate_ingress_end_responses_total[5m]))" }],
+      "fieldConfig": { "defaults": { "unit": "short" } }
+    },
+
+    { "type": "row", "title": "⏱ Latência por Step (P95)" },
+    {
+      "type": "timeseries",
+      "title": "channelRead → bytesToHex (P95)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(coregate_ingress_step_duration_ms_bucket{step=\"channelRead\"}[5m])) by (le))" },
+        { "expr": "histogram_quantile(0.95, sum(rate(coregate_ingress_step_duration_ms_bucket{step=\"bytesToHex\"}[5m])) by (le))" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ms" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "decodeIso → dispatch (P95)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(coregate_ingress_step_duration_ms_bucket{step=\"decodeIso\"}[5m])) by (le))" },
+        { "expr": "histogram_quantile(0.95, sum(rate(coregate_ingress_step_duration_ms_bucket{step=\"dispatch\"}[5m])) by (le))" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 50 },
+              { "color": "red", "value": 150 }
+            ]
+          }
+        }
+      }
+    },
+
+    { "type": "row", "title": "🔄 Execução de Steps" },
+    {
+      "type": "timeseries",
+      "title": "Execuções por Step (rate)",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "targets": [
+        { "expr": "sum(rate(coregate_ingress_step_executed_total[5m])) by (step)" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops/s" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Falhas por Step (rate)",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "targets": [
+        { "expr": "sum(rate(coregate_ingress_step_failed_total[5m])) by (step)" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ops/s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 0.01 }
+            ]
+          }
+        }
+      }
+    },
+
+    { "type": "row", "title": "📦 IO e Canal" },
+    {
+      "type": "timeseries",
+      "title": "Bytes de Resposta (média)",
+      "gridPos": { "h": 7, "w": 8, "x": 0, "y": 22 },
+      "targets": [
+        { "expr": "avg(rate(coregate_ingress_response_bytes_sum[5m]) / rate(coregate_ingress_response_bytes_count[5m]))" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "bytes" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Channel Active / Inactive",
+      "gridPos": { "h": 7, "w": 8, "x": 8, "y": 22 },
+      "targets": [
+        { "expr": "sum(rate(coregate_ingress_channel_active_total[5m]))" },
+        { "expr": "sum(rate(coregate_ingress_channel_inactive_total[5m]))" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops/s" } }
+    },
+    {
+      "type": "timeseries",
+      "title": "Exceptions (Netty)",
+      "gridPos": { "h": 7, "w": 8, "x": 16, "y": 22 },
+      "targets": [
+        { "expr": "sum(rate(coregate_ingress_exception_total[5m])) by (exception)" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops/s" } }
+    },
+
+    { "type": "row", "title": "🏁 Fim da Saga" },
+    {
+      "type": "timeseries",
+      "title": "End Responses por Código",
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 29 },
+      "targets": [
+        { "expr": "sum(rate(coregate_ingress_end_responses_total[5m])) by (code)" }
+      ],
+      "fieldConfig": { "defaults": { "unit": "ops/s" } }
+    },
+    {
+      "type": "stat",
+      "title": "Tempo Total P95 (pipeline ingress)",
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 29 },
+      "targets": [
+        { "expr": "histogram_quantile(0.95, sum(rate(coregate_ingress_total_duration_ms_bucket[5m])) by (le))" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 120 },
+              { "color": "red", "value": 250 }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "templating": { "list": [] },
+  "annotations": { "list": [] }
+}

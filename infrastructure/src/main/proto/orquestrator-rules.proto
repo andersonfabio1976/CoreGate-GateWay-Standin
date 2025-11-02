@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package br.com.coregate.infrastructure;
+
+import "common/coregate-context.proto";
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.proto.rules";
+option java_outer_classname = "RulesProto";
+
+
+// =======================================================
+// 🧾 Transaction Fact (Orquestrator → Rules Engine)
+// =======================================================
+message TransactionFactProto {
+    string request_id = 1;
+    string pan = 2;
+    string merchant_id = 3;
+    string mcc = 4;
+    string country = 5;
+    bool online = 6;
+    int64 amount_cents = 7;
+    double risk_score = 8;
+    bool mcc_blacklisted = 9;
+    bool mcc_whitelisted = 10;
+    bool mcc_gambling = 11;
+    bool gambling_allowed = 12;
+    bool amount_auto_approves = 13;
+    bool risk_ok = 14;
+    bool pan_exceeds_velocity = 15;
+    bool pan_exceeds_daily_limit = 16;
+    string tenant_id = 17;
+}
+
+// =======================================================
+// 🧠 Decisão do Rules Engine
+// =======================================================
+enum DecisionOutcome {
+    DECISION_OUTCOME_UNSPECIFIED = 0;
+    APPROVED = 1;
+    DECLINED = 2;
+    REVIEW = 3;
+}
+
+message StandinDecision {
+    DecisionOutcome outcome = 1;
+    string reason = 2;
+    string auth_code = 3;
+    string request_id = 4;
+}
+
+// =======================================================
+// 📤 Orquestrator → Rules Engine
+// =======================================================
+message RulesRequestProto {
+    CoreGateContext core_gate_context = 1;
+    TransactionFactProto transaction_fact_proto = 2;
+    int64 sent_at_epoch_ms = 3;
+}
+
+// =======================================================
+// 📥 Rules Engine → Orquestrator
+// =======================================================
+message RulesResponseProto {
+    CoreGateContext core_gate_context = 1;
+    StandinDecision decision = 2;
+    int64 evaluated_at_epoch_ms = 3;
+}
+
+// =======================================================
+// 🛰️ Serviço gRPC
+// =======================================================
+service RulesProtoService {
+    rpc Evaluate (RulesRequestProto) returns (RulesResponseProto);
+}

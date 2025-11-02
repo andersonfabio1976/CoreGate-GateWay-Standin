@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package br.com.coregate.infrastructure;
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.proto.common";
+option java_outer_classname = "CardBrandTypeProto";
+
+/**
+ * 💳 CardBrandType — Identifica a bandeira (extraída do PAN - campo 2)
+ */
+enum CardBrandType {
+    CARD_BRAND_UNKNOWN = 0;
+    VISA = 1;
+    MASTERCARD = 2;
+    ELO = 3;
+    AMEX = 4;
+    HIPERCARD = 5;
+    DISCOVER = 6;
+    JCB = 7;
+}

@@ -10,6 +10,7 @@ package br.com.coregate.infrastructure.enums;
 public enum OperationalMode {
 
     GATEWAY(false),
+    STANDIN(false),
     STANDIN_AUTOMATIC(false),
     STANDIN_REQUESTED(true);
 
@@ -24,6 +25,13 @@ public enum OperationalMode {
     }
 
     public boolean isStandIn() {
-        return this == STANDIN_AUTOMATIC || this == STANDIN_REQUESTED;
+        return this == STANDIN || this == STANDIN_REQUESTED || this == STANDIN_AUTOMATIC;
     }
+
+    public ProcessingMode toProcessingMode() {
+        return isStandIn()
+                ? br.com.coregate.infrastructure.enums.ProcessingMode.STANDIN
+                : br.com.coregate.infrastructure.enums.ProcessingMode.GATEWAY;
+    }
+
 }

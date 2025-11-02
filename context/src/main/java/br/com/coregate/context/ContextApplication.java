@@ -1,8 +1,5 @@
 package br.com.coregate.context;
 
-import br.com.coregate.context.templates.TemplateGrpcClientUse;
-import br.com.coregate.context.templates.TemplateIsoAnnotationsUse;
-import br.com.coregate.context.templates.TemplateRabbitUse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.EnableRabbit;
 import org.springframework.boot.ApplicationRunner;
@@ -18,12 +15,10 @@ public class ContextApplication {
     }
 
     @Bean
-    ApplicationRunner run(TemplateIsoAnnotationsUse templateIsoAnnotationsUse,
-                          TemplateGrpcClientUse templateGrpcClientUse,
-                          TemplateRabbitUse templateRabbitUse) {
+    ApplicationRunner run() {
         return args -> {
 
-            //templateGrpcClientUse.execute(); // Rodar Orchestrator SERVER
+            //templateGrpcClientUse.execute(); // Rodar Orquestrator SERVER
             //templateIsoAnnotationsUse.execute();
             //templateRabbitUse.execute(); // Rodar docker-compose (RABBIT)
 

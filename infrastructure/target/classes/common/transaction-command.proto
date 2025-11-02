@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+import "common/card-brand-type.proto";
+import "common/channel-type.proto";
+import "common/currency-code.proto";
+import "common/processing-code-type.proto";
+import "common/transaction-status.proto";
+
+package br.com.coregate.infrastructure;
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.proto.transaction";
+option java_outer_classname = "TransactionCommandProto";
+
+// =======================================================
+// 💱 Enums de domínio
+// =======================================================
+
+
+enum TransactionType {
+    TRANSACTION_TYPE_UNSPECIFIED = 0;
+    TRANSACTION_TYPE_PURCHASE = 1;
+    TRANSACTION_TYPE_REVERSAL = 2;
+    TRANSACTION_TYPE_REFUND = 3;
+    TRANSACTION_TYPE_BALANCE_INQUIRY = 4;
+    TRANSACTION_TYPE_WITHDRAWAL = 5;
+    TRANSACTION_TYPE_AUTHORIZATION = 6;
+}
+
+// =======================================================
+// 💳 Value Object - PAN
+// =======================================================
+message Pan {
+    string value = 1;
+}
+
+// =======================================================
+// 📤 Context → Orquestrator
+// =======================================================
+message TransactionCommand {
+    string tenant_id = 1;
+    string merchant_id = 2;
+    double amount = 3;
+    CurrencyCode currency = 4;
+    CardBrandType brand = 5;
+    ChannelType channel = 6;
+    TransactionType type = 7;
+    Pan pan = 8;
+    string mti = 9;
+    string mcc = 10;
+    ProcessingCodeType operation = 11;
+    TransactionStatus status_proto = 12;
+}
+

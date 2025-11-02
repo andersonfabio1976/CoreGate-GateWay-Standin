@@ -14,7 +14,7 @@
   Gateway • Stand-In • Resilience • Observability
 ===================================================
  :: Initializing CoreGate Engine ::
- :: Loading Modules: Ingress | Context | Orchestrator | Rules ::
+ :: Loading Modules: Ingress | Context | Orquestrator | Rules ::
  :: Starting Consul, HAProxy, RabbitMQ, Redis... ::
  :: Monitoring via Grafana & Kibana ::
  :: System Ready 🚀 ::

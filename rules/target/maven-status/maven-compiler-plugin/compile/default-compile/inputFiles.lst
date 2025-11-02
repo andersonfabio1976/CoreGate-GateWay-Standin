@@ -1,12 +1,9 @@
 C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\metrics\StandinMetrics.java
+C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\auth\TenantRulesPubSubListener.java
 C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\controller\StandinRulesController.java
 C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\auth\StandinRulesEngine.java
-C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\auth\DecisionOutcome.java
-C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\model\StandinDecision.java
-C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\model\TransactionFact.java
-C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\repository\IdempotencyRepository.java
-C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\repository\VelocityRepository.java
+C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\auth\TenantRulesLoader.java
+C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\grpc\server\GrpcServerService.java
+C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\auth\TenantRulesCache.java
 C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\RulesApplication.java
 C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\auth\ExternalRulesConfig.java
-C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\events\RabbitStandinDecisionPublisher.java
-C:\DevTools\Projects\core-gate\rules\src\main\java\br\com\coregate\rules\events\StandinDecisionEvent.java

@@ -1,0 +1,59 @@
+groups:
+  - name: coregate-saga-alerts
+    interval: 15s
+    rules:
+      # 🚨 Alta taxa de Rollbacks (>5% das transações nos últimos 10 min)
+      - alert: HighRollbackRate
+        expr: |
+          (
+            sum(rate(coregate_saga_rollback_total[10m]))
+            /
+            (sum(rate(coregate_transaction_success_total[10m])) + sum(rate(coregate_transaction_failure_total[10m])))
+          ) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          service: coregate
+        annotations:
+          summary: "Alta taxa de rollback detectada (>5%)"
+          description: "Tenant(s) com rollback excessivo. Verificar logs e erros do Saga Orquestrator."
+
+      # 🚨 Latência de transações acima do P95 definido (500ms)
+      - alert: HighTransactionLatency
+        expr: |
+          histogram_quantile(0.95, sum(rate(coregate_transaction_duration_ms_bucket[5m])) by (le, tenant)) > 0.5
+        for: 1m
+        labels:
+          severity: critical
+          service: coregate
+        annotations:
+          summary: "Transações lentas detectadas (P95 > 500ms)"
+          description: "A latência média das transações ultrapassou o limite. Verifique gargalos de processamento."
+
+      # ⚠️ Falhas de Step acima de 10% das execuções
+      - alert: HighSagaStepFailures
+        expr: |
+          (
+            sum(rate(coregate_saga_step_failed_total[10m]))
+            /
+            (sum(rate(coregate_saga_step_executed_total[10m])) + 1)
+          ) > 0.1
+        for: 3m
+        labels:
+          severity: warning
+          service: coregate
+        annotations:
+          summary: "Falhas em steps da Saga acima de 10%"
+          description: "Verificar quais steps estão falhando com maior frequência nos últimos 10 minutos."
+
+      # ⚠️ Baixo throughput de transações (TPS < 1)
+      - alert: LowTransactionRate
+        expr: |
+          avg(coregate_tps_per_tenant) < 1
+        for: 5m
+        labels:
+          severity: info
+          service: coregate
+        annotations:
+          summary: "Baixo volume de transações"
+          description: "A taxa de TPS caiu abaixo de 1 por tenant. Pode indicar ambiente ocioso ou problema de ingestão."

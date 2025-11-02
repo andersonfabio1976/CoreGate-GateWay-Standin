@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package br.com.coregate.infrastructure;
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.proto.common";
+option java_outer_classname = "TransactionStatusProto";
+
+/**
+ * 💳 Resultado de autorização comum a Orquestrator e Finalizer.
+ */
+
+enum TransactionStatus {
+    TRANSACTION_STATUS_UNSPECIFIED = 0;
+    PENDING = 1;
+    AUTHORIZED = 2;
+    REJECTED = 3;
+    SETTLED = 4;
+    CANCELED = 5;
+    END = 6;
+    ERROR = 7;
+}
+

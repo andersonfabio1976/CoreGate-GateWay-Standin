@@ -15,7 +15,7 @@ import java.util.UUID;
 public class Advice {
 
     @NotNull private String id;
-    @NotNull private TenantId tenantId;
+    @NotNull private String tenantId;
     @NotNull private Transaction transaction;
     @NotNull private AdviceType type; // APPROVAL, REVERSAL, SETTLEMENT
     @NotNull private AdviceStatus status; // PENDING, SENT, FAILED, ACKNOWLEDGED

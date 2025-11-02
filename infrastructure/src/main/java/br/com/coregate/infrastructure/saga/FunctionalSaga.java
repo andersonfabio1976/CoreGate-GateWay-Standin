@@ -1,102 +1,159 @@
 package br.com.coregate.infrastructure.saga;
 
+import br.com.coregate.infrastructure.enums.SagaStatus;
+import br.com.coregate.domain.model.Transaction;
+import br.com.coregate.infrastructure.metrics.CoreGatePerformanceMetrics;
 import lombok.extern.slf4j.Slf4j;
-import java.time.Duration;
-import java.time.Instant;
+
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
+import java.util.function.*;
 
+/**
+ * ⚙️ Saga funcional que executa steps sequenciais, com rollback reverso e listener.
+ * - Suporte a métricas e listeners (onStart, onComplete, onRollback)
+ * - Suporte a onError customizado e rollback reverso
+ * - onEnd (função final, opcional, executada ao término da saga)
+ */
 @Slf4j
-public class FunctionalSaga<T> {
+public final class FunctionalSaga<T> {
 
+    private final String sagaName;
     private final List<SagaStep<T>> steps = new ArrayList<>();
-    private Consumer<Exception> errorHandler = e -> log.error("❌ Saga failed: {}", e.getMessage());
-    private Consumer<T> endHandler = tx -> log.info("✅ Saga completed successfully.");
+    private SagaMetricsListener<T> listener = new SagaMetricsListener<>() {};
+    private BiFunction<T, Exception, T> errorHandler;
+    private Function<T, T> endHandler = Function.identity(); // ✅ novo: função final
     private boolean silentRollback = false;
 
-    // -------------------------
-    // Builder / Fluent Interface
-    // -------------------------
+    private FunctionalSaga(String sagaName) {
+        this.sagaName = sagaName;
+    }
 
     public static <T> FunctionalSaga<T> start(T context) {
-        return new FunctionalSaga<>();
+        return new FunctionalSaga<>("coregate-saga");
     }
 
-    public FunctionalSaga<T> then(String name, Function<T, T> action) {
-        steps.add(new SagaStep<>(name, action, null));
+    // -----------------------
+    // Builder fluente da saga
+    // -----------------------
+
+    public FunctionalSaga<T> then(String name, Function<T, T> execute) {
+        steps.add(SagaStep.of(name, execute));
         return this;
     }
 
-    public FunctionalSaga<T> then(String name, Function<T, T> action, Function<T, T> rollback) {
-        steps.add(new SagaStep<>(name, action, rollback));
+    public FunctionalSaga<T> then(String name, Function<T, T> execute, Function<T, T> rollback) {
+        steps.add(SagaStep.of(name, execute, rollback));
         return this;
     }
 
-    public FunctionalSaga<T> onError(Consumer<Exception> handler) {
+    public FunctionalSaga<T> withListener(SagaMetricsListener<T> listener) {
+        this.listener = listener;
+        return this;
+    }
+
+    public FunctionalSaga<T> onError(BiFunction<T, Exception, T> handler) {
         this.errorHandler = handler;
         return this;
     }
 
-    public FunctionalSaga<T> onEnd(Consumer<T> handler) {
+    /**
+     * ✅ Novo: função final executada ao término da saga,
+     * seja sucesso ou falha, após rollback e métricas.
+     */
+    public FunctionalSaga<T> onEnd(Function<T, T> handler) {
         this.endHandler = handler;
         return this;
     }
 
-    public FunctionalSaga<T> enableSilentRollback(boolean enabled) {
-        this.silentRollback = enabled;
+    public FunctionalSaga<T> withSilentMode(boolean silent) {
+        this.silentRollback = silent;
         return this;
     }
 
-    // -------------------------
-    // Execution Flow
-    // -------------------------
+    public FunctionalSaga<T> enableSilentRollback(boolean silent) {
+        return withSilentMode(silent);
+    }
 
-    public void end(T context) {
+    // -----------------------
+    // Execução principal
+    // -----------------------
+
+    public T end(T context) {
+        listener.onStart(sagaName, context);
         Deque<SagaStep<T>> executed = new ArrayDeque<>();
-        Instant startTime = Instant.now();
 
+        long start = System.currentTimeMillis();
         try {
+            T current = context;
             for (SagaStep<T> step : steps) {
-                Instant stepStart = Instant.now();
-                log.info("➡️ Executing step: {}", step.getName());
-                context = step.execute(context);
+                current = step.run(current);
                 executed.push(step);
-                log.debug("⏱️ Step '{}' completed in {} ms", step.getName(),
-                        Duration.between(stepStart, Instant.now()).toMillis());
+                listener.onStepSuccess(sagaName, step.getName(), current);
             }
 
-            log.info("✅ Saga completed successfully in {} ms",
-                    Duration.between(startTime, Instant.now()).toMillis());
+            if (context instanceof Transaction tx)
+                tx.setElapsedMs(System.currentTimeMillis() - start);
 
-            endHandler.accept(context);
+            listener.onComplete(sagaName, current, SagaStatus.SUCCESS);
 
-        } catch (Exception e) {
-            log.warn("❌ Saga failed: {}", e.getMessage());
-            rollback(executed, context, e);
+            // ✅ executa handler final (onEnd)
+            current = endHandler.apply(current);
+
+            return current;
+
+        } catch (Exception cause) {
+            log.error("❌ Saga '{}' failed: {}", sagaName, cause.getMessage(), cause);
+            if (context instanceof Transaction tx)
+                tx.setElapsedMs(System.currentTimeMillis() - start);
+
+            T rolled = rollback(executed, context, cause);
+            listener.onComplete(sagaName, rolled, SagaStatus.ERROR);
+
+            if (errorHandler != null) {
+                T handled = errorHandler.apply(rolled, cause);
+                handled = endHandler.apply(handled); // ✅ garante execução final
+                return handled;
+            }
+
+            if (!silentRollback)
+                throw new RuntimeException(cause);
+
+            rolled = endHandler.apply(rolled); // ✅ mesmo em rollback silencioso
+            return rolled;
         }
     }
 
-    private void rollback(Deque<SagaStep<T>> executed, T context, Exception cause) {
+    // -----------------------
+    // Rollback reverso
+    // -----------------------
+
+    private T rollback(Deque<SagaStep<T>> executed, T state, Exception cause) {
         log.warn("↩️ Starting rollback chain...");
+        long start = System.currentTimeMillis();
+        int steps = 0;
+        T current = state;
 
         while (!executed.isEmpty()) {
-            SagaStep<T> step = executed.pop();
+            var step = executed.pop();
             try {
-                log.warn("↩️ Rolling back: {}", step.getName());
-                step.rollback(context);
+                current = step.revert(current);
+                steps++;
+                listener.onRollback(sagaName, step.getName(), current);
             } catch (Exception ex) {
-                log.error("⚠️ Rollback failed for {}: {}", step.getName(), ex.getMessage());
+                log.error("⚠️ Rollback failed for {}: {}", step.getName(), ex.getMessage(), ex);
             }
         }
 
-        log.info("🧹 Rollback complete.");
+        long elapsed = System.currentTimeMillis() - start;
+        log.info("🧹 Rollback complete in {}ms with {} steps", elapsed, steps);
 
-        // silent mode: no stacktrace, just logs
-        if (!silentRollback) {
-            errorHandler.accept(cause);
-        } else {
-            log.warn("⚠️ Saga completed with rollback (silent mode). Cause: {}", cause.getMessage());
+        if (current instanceof Transaction tx) {
+            String tenant = tx.getTenantId() != null ? tx.getTenantId() : "unknown";
+            String type = tx.getType() != null ? tx.getType().name() : "UNKNOWN";
+            String mode = "UNKNOWN";
+            CoreGatePerformanceMetrics.recordRollbackStatic(tenant, type, mode, steps, elapsed);
         }
+
+        return current;
     }
 }

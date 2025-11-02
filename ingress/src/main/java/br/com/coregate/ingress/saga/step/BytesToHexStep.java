@@ -1,15 +1,15 @@
 package br.com.coregate.ingress.saga.step;
 
-import br.com.coregate.ingress.saga.service.IngressContext;
+import br.com.coregate.application.dto.context.ContextRequestDto;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class BytesToHexStep {
 
-    public static IngressContext execute(IngressContext ctx) {
+    public static ContextRequestDto execute(ContextRequestDto ctx) {
         log.info("🔢 BytesToHexStep - Convertendo payload para HEX...");
         try {
-            if (ctx.getRawBytes() == null)
+            if (ctx. getRawBytes() == null)
                 throw new IllegalStateException("Nenhum payload encontrado para conversão.");
 
             StringBuilder sb = new StringBuilder();
@@ -27,7 +27,7 @@ public class BytesToHexStep {
         }
     }
 
-    public static IngressContext rollback(IngressContext ctx) {
+    public static ContextRequestDto rollback(ContextRequestDto ctx) {
         log.warn("↩️ Rollback BytesToHexStep - removendo string HEX do contexto...");
         ctx.setHexString(null);
         return ctx;

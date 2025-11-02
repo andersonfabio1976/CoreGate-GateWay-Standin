@@ -1,7 +1,8 @@
 package br.com.coregate.rules.auth;
 
-import br.com.coregate.rules.model.StandinDecision;
-import br.com.coregate.rules.model.TransactionFact;
+import br.com.coregate.application.dto.rules.DecisionOutcome;
+import br.com.coregate.application.dto.rules.StandinDecision;
+import br.com.coregate.application.dto.rules.TransactionFactDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.evrete.KnowledgeService;
@@ -40,38 +41,38 @@ public class StandinRulesEngine {
         var builder = new KnowledgeService().newKnowledge().builder();
 
         builder.newRule("DECLINE_MCC_BLACKLIST")
-                .forEach("$t", TransactionFact.class)
+                .forEach("$t", TransactionFactDto.class)
                 .where("$t.isMccBlacklisted()")
                 .execute(ctx -> decide(ctx.get("$t"), DecisionOutcome.DECLINED, "MCC_BLACKLIST"));
 
         builder.newRule("DECLINE_PAN_VELOCITY")
-                .forEach("$t", TransactionFact.class)
+                .forEach("$t", TransactionFactDto.class)
                 .where("$t.isPanExceedsVelocity()")
                 .execute(ctx -> decide(ctx.get("$t"), DecisionOutcome.DECLINED, "VELOCITY"));
 
         builder.newRule("DECLINE_PAN_DAILY_LIMIT")
-                .forEach("$t", TransactionFact.class)
+                .forEach("$t", TransactionFactDto.class)
                 .where("$t.isPanExceedsDailyLimit()")
                 .execute(ctx -> decide(ctx.get("$t"), DecisionOutcome.DECLINED, "DAILY_LIMIT"));
 
         builder.newRule("DECLINE_GAMBLING_BLOCKED")
-                .forEach("$t", TransactionFact.class)
+                .forEach("$t", TransactionFactDto.class)
                 .where("!$t.isGamblingAllowed() && $t.isMccGambling()")
                 .execute(ctx -> decide(ctx.get("$t"), DecisionOutcome.DECLINED, "GAMBLING_BLOCKED"));
 
         builder.newRule("APPROVE_LOW_AMOUNT_LOW_RISK")
-                .forEach("$t", TransactionFact.class)
+                .forEach("$t", TransactionFactDto.class)
                 .where("$t.isAmountAutoApproves() && $t.isRiskOk() && !$t.isMccBlacklisted()")
                 .execute(ctx -> decide(ctx.get("$t"), DecisionOutcome.APPROVED, "LOW_AMOUNT_LOW_RISK"));
 
         builder.newRule("APPROVE_MCC_WHITELIST")
-                .forEach("$t", TransactionFact.class)
+                .forEach("$t", TransactionFactDto.class)
                 .where("$t.isMccWhitelisted() && $t.isRiskOk()")
                 .execute(ctx -> decide(ctx.get("$t"), DecisionOutcome.APPROVED, "MCC_WHITELIST"));
 
         // fallback
         builder.newRule("REVIEW_DEFAULT")
-                .forEach("$t", TransactionFact.class)
+                .forEach("$t", TransactionFactDto.class)
                 .where("$t.getDecision() == null")
                 .execute(ctx -> decide(ctx.get("$t"), DecisionOutcome.REVIEW, "DEFAULT_REVIEW"));
 
@@ -82,17 +83,16 @@ public class StandinRulesEngine {
      * Avalia regras para um tenant específico.
      *
      * @param input    Fato de transação (entrada)
-     * @param tenantId Identificador do tenant
      */
-    public StandinDecision evaluate(TransactionFact input, String tenantId) {
+    public StandinDecision evaluate(TransactionFactDto input) {
         Instant start = Instant.now();
 
         // Carrega configuração dinâmica (cache + redis)
-        ExternalRulesConfig cfg = rulesCache.get(tenantId, rulesLoader::load);
+        ExternalRulesConfig cfg = rulesCache.get(input.getTenantId().toString(), rulesLoader::load);
 
         // Enriquecimento
-        TransactionFact fact = enrich(input, cfg, tenantId);
-        log.debug("🧩 [{}] Fact enriquecido: {}", tenantId, fact);
+        TransactionFactDto fact = enrich(input, cfg, input.getTenantId().toString());
+        log.debug("🧩 [{}] Fact enriquecido: {}", input.getTenantId().toString(), fact);
 
         try (StatefulSession session = knowledge.newStatefulSession()) {
             session.insert(fact);
@@ -101,9 +101,9 @@ public class StandinRulesEngine {
 
         Duration elapsed = Duration.between(start, Instant.now());
 
-        StandinDecision decided = fact.getDecision();
+        StandinDecision decided = fact.getStandinDecision();
         if (decided != null) {
-            log.info("✅ [{}] Decisão final: {} ({}) em {} ms", tenantId,
+            log.info("✅ [{}] Decisão final: {} ({}) em {} ms", input.getTenantId().toString(),
                     decided.getOutcome(), decided.getReason(), elapsed.toMillis());
             return decided;
         }
@@ -118,8 +118,8 @@ public class StandinRulesEngine {
 
     // ---------------- helpers ----------------
 
-    private StandinDecision decide(TransactionFact t, DecisionOutcome outcome, String reason) {
-        if (t.getDecision() != null) return t.getDecision(); // não sobrescreve
+    private StandinDecision decide(TransactionFactDto t, DecisionOutcome outcome, String reason) {
+        if (t.getStandinDecision() != null) return t.getStandinDecision(); // não sobrescreve
 
         StandinDecision decision = StandinDecision.builder()
                 .outcome(outcome)
@@ -128,7 +128,7 @@ public class StandinRulesEngine {
                 .requestId(t.getRequestId())
                 .build();
 
-        t.setDecision(decision);
+        t.setStandinDecision(decision);
 
         if (metrics != null) {
             metrics.countDecision(outcome, reason, t.getAmountCents(), t.getMcc());
@@ -139,8 +139,8 @@ public class StandinRulesEngine {
         return decision;
     }
 
-    private TransactionFact enrich(TransactionFact t, ExternalRulesConfig cfg, String tenantId) {
-        TransactionFact f = TransactionFact.builder()
+    private TransactionFactDto enrich(TransactionFactDto t, ExternalRulesConfig cfg, String tenantId) {
+        TransactionFactDto f = TransactionFactDto.builder()
                 .requestId(t.getRequestId())
                 .pan(t.getPan())
                 .merchantId(t.getMerchantId())

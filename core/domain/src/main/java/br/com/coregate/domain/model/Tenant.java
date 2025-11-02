@@ -1,6 +1,6 @@
 package br.com.coregate.domain.model;
 
-import br.com.coregate.domain.enums.CardBrand;
+import br.com.coregate.domain.enums.CardBrandType;
 import br.com.coregate.domain.vo.Money;
 import br.com.coregate.domain.vo.TenantId;
 import br.com.coregate.domain.vo.TimeWindow;
@@ -33,10 +33,10 @@ public class Tenant {
         @NotNull private TimeWindow window;
         @NotNull private BigDecimal maxAmountPerTxn;
         @NotNull private BigDecimal maxDailyAmount;
-        @NotNull private Set<CardBrand> allowedBrands;
+        @NotNull private Set<CardBrandType> allowedBrands;
         private boolean enabled;
 
-        public boolean canStandIn(Money money, CardBrand brand, java.time.LocalTime now,
+        public boolean canStandIn(Money money, CardBrandType brand, java.time.LocalTime now,
                                   BigDecimal tenantDailyUsed){
             if(!enabled) return false;
             if(!window.contains(now)) return false;
@@ -52,9 +52,9 @@ public class Tenant {
     @AllArgsConstructor @NoArgsConstructor(access = AccessLevel.PROTECTED)
     public static class RoutingPolicy {
         /** exemplo simples: roteamento preferencial por brand */
-        @NotNull private java.util.Map<CardBrand, String> preferredAcquirerByBrand; // brand -> acquirerId
-        public String resolveAcquirer(CardBrand brand){
-            return preferredAcquirerByBrand.getOrDefault(brand, preferredAcquirerByBrand.get(CardBrand.OTHER));
+        @NotNull private java.util.Map<CardBrandType, String> preferredAcquirerByBrand; // brand -> acquirerId
+        public String resolveAcquirer(CardBrandType brand){
+            return preferredAcquirerByBrand.getOrDefault(brand, preferredAcquirerByBrand.get(CardBrandType.VISA));
         }
     }
 

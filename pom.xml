@@ -39,7 +39,7 @@
         <module>adapter</module>
         <module>ingress</module>
         <module>context</module>
-        <module>orchestrator</module>
+        <module>orquestrator</module>
         <module>rules</module>
         <module>finalizer</module>
         <module>advice</module>

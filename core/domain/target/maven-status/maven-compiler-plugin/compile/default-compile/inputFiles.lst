@@ -1,3 +1,4 @@
+C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\CardBrandType.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\model\TransactionApproval.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\AdviceStatus.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\vo\Money.java
@@ -11,11 +12,11 @@ C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\vo\Pan.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\vo\TimeWindow.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\CurrencyCode.java
-C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\CardBrand.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\vo\AdviceId.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\vo\TenantId.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\model\Tenant.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\model\Advice.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\AdviceType.java
+C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\ProcessingCodeType.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\service\StandInDomainService.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\vo\TransactionId.java
