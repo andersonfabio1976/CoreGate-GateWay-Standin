@@ -1,5 +1,7 @@
 br\com\coregate\domain\vo\Pan.class
 br\com\coregate\domain\service\StandInDomainService.class
+br\com\coregate\domain\enums\OperationalMode.class
+br\com\coregate\domain\enums\SagaStatus.class
 br\com\coregate\domain\model\TransactionApproval.class
 br\com\coregate\domain\model\Tenant$TenantBuilder.class
 br\com\coregate\domain\enums\CardBrandType.class

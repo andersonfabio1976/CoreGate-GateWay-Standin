@@ -1,0 +1,7 @@
+coregate:
+  reporting:
+    mail:
+      from: andersonfabio.1976@gmail.com
+      to: pwatecnologia.2021@gmail.com
+      subject: "CoreGate — Relatório Diário de SLA & Disponibilidade"
+      out-dir: /var/coregate/reports

@@ -9,7 +9,7 @@
     </option>
     <option name="ignoredFiles">
       <set>
-        <option value="$PROJECT_DIR$/iso-processor/pom.xml" />
+        <option value="$PROJECT_DIR$/core/core-iso-processor/pom.xml" />
       </set>
     </option>
   </component>

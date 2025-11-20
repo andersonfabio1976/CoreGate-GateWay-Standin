@@ -1,7 +1,8 @@
-C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\client\IssuerFeignClient.java
+C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\config\HttpClientConfig.java
 C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\controller\ModeStatusController.java
-C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\client\ConnectionToIssuer.java
 C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\FinalizerApplication.java
-C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\service\FinalizerService.java
+C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\grpc\server\GrpcServerComponent.java
 C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\service\HealthCheck.java
+C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\client\IssuerClient.java
+C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\grpc\server\GrpcServerFinalizerService.java
 C:\DevTools\Projects\core-gate\finalizer\src\main\java\br\com\coregate\finalizer\event\ModeChangePublisher.java

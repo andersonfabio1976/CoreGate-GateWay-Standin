@@ -1,0 +1,16 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: mock-issuer
+  config:
+    import:
+      - classpath:management.yml
+      - classpath:metrics.yml
+      - classpath:rabbit-queues.yml
+      - classpath:rabbit-application.yml
+
+grpc:
+  server:
+    port: 8091

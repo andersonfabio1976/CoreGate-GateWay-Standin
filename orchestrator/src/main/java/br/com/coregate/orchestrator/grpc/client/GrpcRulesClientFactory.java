@@ -15,5 +15,4 @@ public class GrpcRulesClientFactory {
                 .build();
         return RulesProtoServiceGrpc.newBlockingStub(channel);
     }
-
 }

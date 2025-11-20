@@ -5,7 +5,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @Slf4j
-@SpringBootApplication(scanBasePackages = "br.com.coregate")
+@SpringBootApplication(scanBasePackages =
+        "br.com.coregate, br.com.coregate.infrastructure"
+            )
 public class IngressApplication {
 
     public static void main(String[] args) {

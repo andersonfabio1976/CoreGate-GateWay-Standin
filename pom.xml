@@ -34,12 +34,17 @@
 
     <modules>
         <module>core/domain</module>
+        <module>iso-processor</module>
+        <module>core/core-contracts</module>
         <module>core/application</module>
-        <module>infrastructure</module>
-        <module>adapter</module>
+        <module>infrastructure-rabbit</module>
+        <module>adapters/adapter-operational-mode</module>
+        <module>adapters/adapter-metrics</module>
+<!--        <module>infrastructure</module>-->
+        <module>adapters/adapter-oracle</module>
         <module>ingress</module>
         <module>context</module>
-        <module>orquestrator</module>
+        <module>orchestrator</module>
         <module>rules</module>
         <module>finalizer</module>
         <module>advice</module>

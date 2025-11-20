@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package br.com.coregate.infrastructure;
+
+import "common/coregate-context.proto";
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.proto.ingress";
+option java_outer_classname = "ContextProto";
+
+
+// =======================================================
+// 📤 Ingress → Context (request para decodificação ISO8583)
+// =======================================================
+message ContextRequestProto {
+    CoreGateContext coreGateContext = 1;   // metadados operacionais
+    bytes rawBytes = 2;                 // ISO8583 bruta (raw)
+    string hexString = 3;               // ex.: "ISO-8859-1"
+    int64 receivedAtEpochMs = 4;     // timestamp de recebimento
+}
+
+// =======================================================
+// 📥 Context → Ingress (resposta recodificada p/ writeAndFlush)
+// =======================================================
+message ContextResponseProto {
+    CoreGateContext coreGateContext = 1;   // metadados operacionais
+    bytes rawBytes = 2;                 // ISO8583 bruta (raw)
+    string hexString = 3;               // ex.: "ISO-8859-1"
+    int64 receivedAtEpochMs = 4;     // timestamp de recebimento
+}
+
+// =======================================================
+// 🛰️ Serviço gRPC (Ingress ↔ Context)
+// =======================================================
+service ContextProtoService {
+    rpc Authorize (ContextRequestProto) returns (ContextResponseProto);
+}

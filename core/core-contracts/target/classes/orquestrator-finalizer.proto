@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package br.com.coregate.infrastructure;
+
+import "common/coregate-context.proto";
+import "common/transaction-command.proto";
+import "common/authorization-result.proto";
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.proto.finalizer";
+option java_outer_classname = "FinalizerProto";
+
+message FinalizerRequestProto {
+    CoreGateContext coreGateContext = 1;
+    TransactionCommand transactionCommandProto = 2;
+    int64 sentAtEpochMs = 3;
+}
+
+message FinalizerResponseProto {
+    CoreGateContext coreGateContext = 1;
+    AuthorizationResult authorizationResult = 2;
+    int64 receivedAtEpochMs = 3;
+}
+
+
+
+// =======================================================
+// 🛰️ Serviço gRPC
+// =======================================================
+service FinalizerProtoService {
+    rpc Authorize (FinalizerRequestProto) returns (FinalizerResponseProto);
+}

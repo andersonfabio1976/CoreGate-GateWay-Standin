@@ -22,7 +22,7 @@ mockpos:
 
   # 🔹 Quantidade inicial de terminais (POS) simulados
   pos:
-    count: 10
+    count: 1
 
   # 🔹 Quantidade de mensagens enviadas por cada POS
   messages:
@@ -31,7 +31,7 @@ mockpos:
 
   # 🔹 Intervalo entre os envios de mensagens por POS (em segundos)
   interval:
-    seconds: 100
+    seconds: 50000
 
   # 🔹 Timeout de resposta de socket (em milissegundos)
   socket:
@@ -53,8 +53,8 @@ mockpos:
     increment: 10
 
     # Limite máximo de POS simultâneos
-    max: 100000
+    max: 1
 
     # Intervalo entre cada aumento de carga (em segundos)
     cycle:
-      seconds: 10
+      seconds: 50

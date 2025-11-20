@@ -1,8 +1,8 @@
 package br.com.coregate.rules.auth;
 
-import br.com.coregate.application.dto.rules.DecisionOutcome;
-import br.com.coregate.application.dto.rules.StandinDecision;
-import br.com.coregate.application.dto.rules.TransactionFactDto;
+import br.com.coregate.core.contracts.dto.rules.DecisionOutcome;
+import br.com.coregate.core.contracts.dto.rules.StandinDecision;
+import br.com.coregate.core.contracts.dto.rules.TransactionFactDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.evrete.KnowledgeService;

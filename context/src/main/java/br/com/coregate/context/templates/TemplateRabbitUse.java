@@ -4,7 +4,7 @@
 //import br.com.coregate.infrastructure.mock.TransactionCommandMockBuilder;
 //import br.com.coregate.infrastructure.rabbitmq.RabbitConsumer;
 //import br.com.coregate.infrastructure.rabbitmq.RabbitFactory;
-//import br.com.coregate.infrastructure.enums.RabbitQueueType;
+//import br.com.coregate.rabbitmq.enums.RabbitQueueType;
 //import org.springframework.stereotype.Component;
 //
 //@Component

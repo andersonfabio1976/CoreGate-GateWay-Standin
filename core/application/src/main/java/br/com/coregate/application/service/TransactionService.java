@@ -1,10 +1,8 @@
 package br.com.coregate.application.service;
 
-import br.com.coregate.application.port.in.StandInEvaluationUseCase;
-import br.com.coregate.application.port.out.*;
+import br.com.coregate.application.ports.out.TransactionRepositoryPort;
 import br.com.coregate.domain.model.*;
 import br.com.coregate.domain.vo.*;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

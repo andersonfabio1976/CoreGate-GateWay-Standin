@@ -1,9 +1,7 @@
 package br.com.coregate.finalizer.controller;
 
-import br.com.coregate.infrastructure.enums.OperationalMode;
-import br.com.coregate.infrastructure.enums.RabbitQueueType;
-import br.com.coregate.infrastructure.mode.OperationalModeManager;
-import br.com.coregate.infrastructure.rabbitmq.RabbitFactory;
+import br.com.coregate.domain.enums.OperationalMode;
+import br.com.coregate.mode.OperationalModeManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ModeStatusController {
 
     private final OperationalModeManager modeManager;
-    private final RabbitFactory rabbitFactory;
 
     /**
      * Retorna o modo atual carregado pelo sistema.
@@ -50,7 +47,7 @@ public class ModeStatusController {
         OperationalMode current = modeManager.getMode();
         OperationalMode next = OperationalMode.STANDIN_REQUESTED;
 
-        rabbitFactory.publish(RabbitQueueType.STANDIN_REQUESTED, next.name());
+        modeManager.switchTo(OperationalMode.STANDIN_REQUESTED,"Standin Requested");
         log.info("📤 [PUBLISH] STANDIN_REQUESTED → ");
 
         return ResponseEntity.ok().build();
@@ -65,7 +62,7 @@ public class ModeStatusController {
         OperationalMode current = modeManager.getMode();
         OperationalMode next = OperationalMode.GATEWAY;
 
-        rabbitFactory.publish(RabbitQueueType.GATEWAY, next.name());
+        modeManager.switchTo(OperationalMode.GATEWAY_REQUESTED, "Gateway Requested");
         log.info("📤 [PUBLISH] GATEWAY → ");
 
         return ResponseEntity.ok().build();

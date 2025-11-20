@@ -1,6 +1,9 @@
 package br.com.coregate;
 
+import br.com.coregate.core.contracts.dto.transaction.TransactionCommand;
+import br.com.coregate.core.contracts.iso8583.parsing.ParserIso8583;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -10,20 +13,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.List;
-import java.util.Random;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.*;
 
-/**
- * 🚀 Mock POS Stress Tool
- * Envia mensagens ISO8583 simuladas para o módulo Ingress com métricas de performance e modo evolutivo.
- */
 @Slf4j
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "br.com.coregate")
 public class MockPosApplication implements CommandLineRunner {
 
     @Value("${mockpos.host:localhost}")
@@ -32,39 +29,31 @@ public class MockPosApplication implements CommandLineRunner {
     @Value("${mockpos.port:8583}")
     private int port;
 
-    @Value("${mockpos.pos.count:5}")
+    @Value("${mockpos.pos.count:1}")
     private int posCount;
 
-    @Value("${mockpos.messages.per.pos:100}")
-    private int messagesPerPos;
-
-    @Value("${mockpos.interval.seconds:3}")
-    private int intervalSeconds;
+    @Value("${mockpos.interval.ms:250}")
+    private int intervalMs;
 
     @Value("${mockpos.socket.timeout.ms:3000}")
     private int socketTimeoutMs;
 
-    @Value("${mockpos.evolution.enabled:false}")
-    private boolean evolutionEnabled;
+    @Autowired
+    private ParserIso8583 parserIso8583;
 
-    @Value("${mockpos.evolution.increment:5}")
-    private int evolutionIncrement;
-
-    @Value("${mockpos.evolution.max:100}")
-    private int evolutionMax;
-
-    @Value("${mockpos.evolution.cycle.seconds:30}")
-    private int evolutionCycleSeconds;
-
-    private static final List<String> MTIS = List.of("0100", "0110", "0200", "0210", "0400", "0410");
-    private static final Random RANDOM = new Random();
-
-    // Estatísticas globais
     private final AtomicLong totalSent = new AtomicLong(0);
     private final AtomicLong totalSuccess = new AtomicLong(0);
     private final AtomicLong totalErrors = new AtomicLong(0);
-    private final AtomicLong totalLatency = new AtomicLong(0);
-    private final AtomicLong totalTimeouts = new AtomicLong(0);
+    private final AtomicLong tpsCounter = new AtomicLong(0);
+    private final AtomicLong idempotentHits = new AtomicLong(0);
+
+    private final Map<String, Boolean> recentPan = new LinkedHashMap<>(10_000, 0.75f, true) {
+        @Override protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
+            return this.size() > 10_000;
+        }
+    };
+
+    private static final Random RANDOM = new Random();
 
     public static void main(String[] args) {
         SpringApplication.run(MockPosApplication.class, args);
@@ -72,190 +61,191 @@ public class MockPosApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+
         log.info("""
-                =========================================================
-                🧩 Starting MOCK POS LOAD TEST
+                ===========================================
+                🚀 MOCK POS (ISO8583 Real Generator)
                 Host: {} | Port: {}
-                POS: {} | Msg/Pos: {} | Interval: {}s
-                Evolution Mode: {} | +{} POS every {}s (max {})
-                =========================================================
-                """, host, port, posCount, messagesPerPos, intervalSeconds,
-                evolutionEnabled, evolutionIncrement, evolutionCycleSeconds, evolutionMax);
+                POS Workers: {} | Interval: {}ms
+                ===========================================
+                """, host, port, posCount, intervalMs);
 
-        startLoadTest(posCount);
-    }
+        ScheduledExecutorService workers = Executors.newScheduledThreadPool(posCount);
+        ScheduledExecutorService reporter = Executors.newSingleThreadScheduledExecutor();
 
-    private void startLoadTest(int initialPosCount) {
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(200);
-        ExecutorService monitorExecutor = Executors.newSingleThreadExecutor();
+        for (int i = 0; i < posCount; i++) {
+            String terminal = "T%07d".formatted(i + 1);
+            String merchant = "M%014d".formatted(i + 1);
 
-        Instant start = Instant.now();
-        AtomicInteger activePos = new AtomicInteger(initialPosCount);
-
-        // ✅ Monitor periódico de métricas
-//        monitorExecutor.submit(() -> {
-//            while (true) {
-//                try {
-//                    long sent = totalSent.get();
-//                    long ok = totalSuccess.get();
-//                    long err = totalErrors.get();
-//                    double avgLatency = ok > 0 ? (double) totalLatency.get() / ok : 0;
-//                    double successRate = sent > 0 ? (ok * 100.0 / sent) : 0;
-//                    double tps = sent / (Duration.between(start, Instant.now()).toMillis() / 1000.0);
-//
-//                    log.info("""
-//                            📊 Performance:
-//                              ➤ Sent: {}
-//                              ➤ Success: {}
-//                              ➤ Errors: {}
-//                              ➤ Avg Latency: {} ms
-//                              ➤ TPS: {}/s
-//                              ➤ Success Rate: {}%
-//                            """, sent, ok, err, avgLatency, tps, successRate);
-//
-//                    Thread.sleep(10_000);
-//                } catch (Exception e) {
-//                    log.error("Monitor error: {}", e.getMessage());
-//                }
-//            }
-//        });
-
-        monitorExecutor.submit(() -> {
-            long lastSent = 0;
-            long lastSuccess = 0;
-            long lastErrors = 0;
-            long lastTimeouts = 0;
-            long lastLatency = 0;
-            int ciclo = 1;
-
-
-            while (true) {
-                try {
-                    Thread.sleep(10_000); // período de exibição do ciclo
-
-                    long sentNow = totalSent.get();
-                    long okNow = totalSuccess.get();
-                    long errNow = totalErrors.get();
-                    long toNow = totalTimeouts.get();
-                    long latNow = totalLatency.get();
-
-                    long sentDiff = sentNow - lastSent;
-                    long okDiff = okNow - lastSuccess;
-                    long errDiff = errNow - lastErrors;
-                    long toDiff = toNow - lastTimeouts;
-                    long latDiff = latNow - lastLatency;
-
-                    double successRate = sentDiff > 0 ? (okDiff * 100.0 / sentDiff) : 0.0;
-                    double avgLatency = okDiff > 0 ? (double) latDiff / okDiff : 0.0;
-                    double tps = sentDiff / 10.0; // 10 segundos fixos aqui
-
-                    log.info("""
-                    📊 Ciclo {} (últimos 10s)
-                      ➤ Enviadas: {}
-                      ➤ Sucesso: {} ({}%)
-                      ➤ Timeout: {}
-                      ➤ Erros: {}
-                      ➤ Latência média: {} ms
-                      ➤ TPS (médio): {}/s
-                    """, ciclo++, sentDiff, okDiff, successRate, toDiff, errDiff, avgLatency, tps);
-
-                    lastSent = sentNow;
-                    lastSuccess = okNow;
-                    lastErrors = errNow;
-                    lastTimeouts = toNow;
-                    lastLatency = latNow;
-
-                } catch (Exception e) {
-                    log.error("Erro no monitor: {}", e.getMessage());
-                }
-            }
-        });
-
-
-        // 🔸 Lança carga inicial
-        launchPosThreads(scheduler, activePos.get());
-
-        // 🔹 Modo evolutivo
-        if (evolutionEnabled) {
-            Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(() -> {
-                int next = activePos.addAndGet(evolutionIncrement);
-                if (next <= evolutionMax) {
-                    log.info("📈 Increasing POS count to {}", next);
-                    launchPosThreads(scheduler, evolutionIncrement);
-                } else {
-                    log.info("🏁 Max capacity reached ({} POS)", evolutionMax);
-                }
-            }, evolutionCycleSeconds, evolutionCycleSeconds, TimeUnit.SECONDS);
+            workers.scheduleAtFixedRate(
+                    () -> sendTransaction(terminal, merchant),
+                    0,
+                    intervalMs,
+                    TimeUnit.MILLISECONDS
+            );
         }
-    }
 
-    private void launchPosThreads(ScheduledExecutorService scheduler, int count) {
-        for (int i = 0; i < count; i++) {
-            String terminalId = String.format("TERM%03d", i + 1);
-            String merchantId = String.format("MERCH%03d", i + 1);
-
-            scheduler.scheduleAtFixedRate(() -> sendTransaction(terminalId, merchantId),
-                    0, intervalSeconds, TimeUnit.MILLISECONDS);
-        }
+        reporter.scheduleAtFixedRate(this::printSummary, 7, 7, TimeUnit.SECONDS);
     }
 
     private void sendTransaction(String terminalId, String merchantId) {
-        int seq = (int) totalSent.incrementAndGet();
-        String mti = MTIS.get(RANDOM.nextInt(MTIS.size()));
-        String iso = generateIsoMessage(seq, mti, merchantId, terminalId);
+        long seq = totalSent.incrementAndGet();
+
+        String iso = generateRealIso8583(seq, terminalId, merchantId);
         byte[] isoBytes = iso.getBytes(StandardCharsets.ISO_8859_1);
 
-        int length = isoBytes.length;
-        byte[] header = new byte[]{(byte) ((length >> 8) & 0xFF), (byte) (length & 0xFF)};
+        String pan = extractPan(iso);
+        synchronized (recentPan) {
+            if (recentPan.containsKey(pan)) idempotentHits.incrementAndGet();
+            recentPan.put(pan, true);
+        }
 
-        long start = System.nanoTime();
+        tpsCounter.incrementAndGet();
 
-        try (Socket socket = new Socket(host, port);
-             OutputStream out = socket.getOutputStream();
-             InputStream in = socket.getInputStream()) {
-
+        try (Socket socket = new Socket(host, port)) {
             socket.setSoTimeout(socketTimeoutMs);
+            OutputStream out = socket.getOutputStream();
+            InputStream in = socket.getInputStream();
+
+            int length = isoBytes.length;
+            byte[] header = {(byte) (length >> 8), (byte) length};
 
             out.write(header);
             out.write(isoBytes);
             out.flush();
 
-            byte[] buffer = new byte[256];
-            int read = in.read(buffer);
+            byte[] buf = new byte[512];
+            int read = in.read(buf);
 
-            long duration = (System.nanoTime() - start) / 1_000_000; // ms
+            if (read > 0) totalSuccess.incrementAndGet();
+            else totalErrors.incrementAndGet();
 
-            if (read > 0) {
-                totalSuccess.incrementAndGet();
-                totalLatency.addAndGet(duration);
-                String resp = new String(buffer, 2, read - 2, StandardCharsets.ISO_8859_1);
-                //log.info("✅ [{}] MTI={} | Resp='{}' | {}ms", terminalId, mti, resp, duration);
-            } else {
-                totalErrors.incrementAndGet();
-                log.warn("⚠️ [{}] Timeout sem resposta", terminalId);
-            }
-
-            Thread.sleep(100); // evita RST TCP (tempo para flush)
         } catch (Exception e) {
             totalErrors.incrementAndGet();
-            log.error("💥 [{}] Falha: {}", terminalId, e.getMessage());
         }
     }
 
-    private static String generateIsoMessage(int seq, String mti, String merchantId, String terminalId) {
-        String pan = String.format("400000000000%04d", seq % 10000);
-        String processingCode = switch (mti) {
-            case "0100", "0110" -> "000000";
-            case "0200", "0210" -> "003000";
-            case "0400", "0410" -> "200000";
-            default -> "999999";
-        };
-        String amount = String.format("%012d", 10000 + (seq % 100));
-        String trace = String.format("%06d", seq);
-        String time = "121212";
-        String date = "1026";
+    private void printSummary() {
+        long tps = tpsCounter.getAndSet(0);
+
+        log.info("""
+                ===========================================
+                📊 MOCK POS SUMMARY (7s)
+                TPS: {}
+                Total Enviadas: {}
+                Total OK: {}
+                Total Erros: {}
+                Idempotentes: {}
+                ===========================================
+                """, tps,
+                totalSent.get(),
+                totalSuccess.get(),
+                totalErrors.get(),
+                idempotentHits.get());
+    }
+
+    // ---------------------------------------------------------
+    // 🔥 GERAÇÃO REALISTA DE ISO8583 (TESTE / ADQUIRENTE)
+    // ---------------------------------------------------------
+
+    private String generateRealIso8583(long seq, String terminalId, String merchantId) {
+
+        String mti = pickRandomMti();
+        String pan = randomPan();
+        String procCode = procCodeForMti(mti);
+        String amount = "%012d".formatted(10000 + RANDOM.nextInt(50000));
+        String stan = "%06d".formatted(seq % 999999);
+
+        LocalDateTime now = LocalDateTime.now();
+        String timeLocal = now.format(DateTimeFormatter.ofPattern("HHmmss"));
+        String dateLocal = now.format(DateTimeFormatter.ofPattern("MMdd"));
+
+        String mcc = randomMcc();
+        String posEntry = randomEntryMode();
         String currency = "986";
 
-        return mti + pan + processingCode + amount + trace + time + date + merchantId + terminalId + currency;
+        BitSet bitmap = new BitSet(64);
+        activate(bitmap, 2, 3, 4, 7, 11, 12, 13, 18, 22, 41, 42, 49);
+
+        StringBuilder iso = new StringBuilder();
+        iso.append(mti);
+        iso.append(bitSetToHex(bitmap));
+
+        iso.append(llvar(pan));       // f2
+        iso.append(procCode);         // f3
+        iso.append(amount);           // f4
+        iso.append(stan);             // f11
+        iso.append(timeLocal);        // f12
+        iso.append(dateLocal);        // f13
+        iso.append(mcc);              // f18
+        iso.append(posEntry);         // f22
+        iso.append(fixLen(terminalId, 8));   // f41
+        iso.append(fixLen(merchantId, 15));  // f42
+        iso.append(currency);         // f49
+
+        return iso.toString();
+    }
+
+    private static String pickRandomMti() {
+        return switch (RANDOM.nextInt(3)) {
+            case 0 -> "0100"; // auth
+            case 1 -> "0200"; // financial
+            default -> "0400"; // reversal
+        };
+    }
+
+    private static String procCodeForMti(String mti) {
+        return switch (mti) {
+            case "0100" -> "000000";
+            case "0200" -> "000001";
+            case "0400" -> "200000";
+            default -> "999999";
+        };
+    }
+
+    private static String randomPan() {
+        int suffix = 100000 + RANDOM.nextInt(900000);
+        return "400000" + suffix;
+    }
+
+    private static String randomMcc() {
+        String[] mccs = {"4111", "4789", "5311", "5411", "5999", "6011", "7011", "7999"};
+        return mccs[RANDOM.nextInt(mccs.length)];
+    }
+
+    private static String randomEntryMode() {
+        return switch (RANDOM.nextInt(3)) {
+            case 0 -> "051"; // chip
+            case 1 -> "071"; // contactless
+            default -> "901"; // e-commerce
+        };
+    }
+
+    private static void activate(BitSet b, int... fields) {
+        for (int f : fields) b.set(f - 1);
+    }
+
+    private static String bitSetToHex(BitSet bitSet) {
+        byte[] bytes = new byte[8];
+        for (int i = 0; i < 64; i++)
+            if (bitSet.get(i)) bytes[i / 8] |= 1 << (7 - (i % 8));
+
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) sb.append("%02X".formatted(b));
+        return sb.toString();
+    }
+
+    private static String fixLen(String s, int len) {
+        return String.format("%-" + len + "s", s);
+    }
+
+    private static String llvar(String s) {
+        return "%02d%s".formatted(s.length(), s);
+    }
+
+    private static String extractPan(String iso) {
+        int bitmapEnd = 4 + 16;
+        int ll = Integer.parseInt(iso.substring(bitmapEnd, bitmapEnd + 2));
+        return iso.substring(bitmapEnd + 2, bitmapEnd + 2 + ll);
     }
 }

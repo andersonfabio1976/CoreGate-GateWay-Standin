@@ -15,5 +15,5 @@ public class GrpcFinalizerClientFactory {
                 .build();
         return FinalizerProtoServiceGrpc.newBlockingStub(channel);
     }
-    
+
 }

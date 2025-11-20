@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package br.com.coregate.infrastructure;
+
+import "common/transaction-status.proto";
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.proto.common";
+option java_outer_classname = "AuthorizationResultProto";
+
+/**
+ * 💳 Resultado de autorização comum a Orquestrator e Finalizer.
+ */
+message AuthorizationResult {
+    string transactionId = 1;
+    TransactionStatus status = 2;
+    string authorizationCode = 3;
+    string responseCode = 4;
+    int64 timestampEpochMs = 5;
+    string mti = 6;
+}

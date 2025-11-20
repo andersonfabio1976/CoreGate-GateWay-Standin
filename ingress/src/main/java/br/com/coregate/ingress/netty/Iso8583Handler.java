@@ -1,9 +1,8 @@
 package br.com.coregate.ingress.netty;
 
-import br.com.coregate.application.dto.context.ContextRequestDto;
-import br.com.coregate.application.dto.common.CoreGateContextDto;
-import br.com.coregate.ingress.saga.service.IngressSagaService;
-import io.netty.buffer.ByteBuf;
+import br.com.coregate.core.contracts.dto.context.ContextRequestDto;
+import br.com.coregate.core.contracts.dto.context.CoreGateContextDto;
+import br.com.coregate.ingress.lifecycle.service.IngressSagaService;
 import io.netty.channel.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -63,26 +62,27 @@ public class Iso8583Handler extends ChannelInboundHandlerAdapter {
     // ----------------------------------------
     @Override
     public void channelRead(ChannelHandlerContext channel, Object msg) {
-        if (!(msg instanceof ByteBuf buf)) {
-            log.warn("⚠️ Mensagem recebida não é ByteBuf");
+        if (!(msg instanceof byte[] data)) {
+            log.warn("⚠️ Mensagem recebida não é byte[] (recebido: {})", msg.getClass());
             return;
         }
 
-        byte[] data = new byte[buf.readableBytes()];
-        buf.readBytes(data);
-
         log.debug("📥 Bytes recebidos: {} bytes", data.length);
+
         CoreGateContextDto contextChannel = CoreGateContextDto.builder()
                 .tenantId("coregate")
                 .channel(channel)
                 .traceId(UUID.randomUUID().toString())
                 .build();
+
         ContextRequestDto contextRequestDto = ContextRequestDto.builder()
                 .context(contextChannel)
                 .rawBytes(data)
                 .build();
+
         sagaService.runStep("channelRead", contextRequestDto);
     }
+
 
     // ----------------------------------------
     // 🔹 4️⃣ Canal inativo (cliente desconectou)

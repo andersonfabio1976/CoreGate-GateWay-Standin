@@ -1,7 +1,7 @@
 package br.com.coregate.controller;
 
-import br.com.coregate.application.dto.transaction.AuthorizationResult;
-import br.com.coregate.application.dto.transaction.TransactionCommand;
+import br.com.coregate.core.contracts.dto.transaction.AuthorizationResult;
+import br.com.coregate.core.contracts.dto.transaction.TransactionCommand;
 import br.com.coregate.domain.enums.TransactionStatus;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +32,7 @@ public class IssuerMockController {
             String authCode = generateAuthCode();
             log.info("✅ [MOCK-ISSUER] Transação aprovada [{}]", authCode);
             return AuthorizationResult.builder()
+                            .transactionId(transactionId)
                             .responseCode("00")
                             .timestamp(LocalDateTime.now())
                             .status(TransactionStatus.AUTHORIZED)
@@ -41,6 +42,7 @@ public class IssuerMockController {
             // ❌ Negado
             log.warn("❌ [MOCK-ISSUER] Transação negada [{}]", request.pan());
             return AuthorizationResult.builder()
+                    .transactionId(transactionId)
                     .responseCode("05")
                     .timestamp(LocalDateTime.now())
                     .status(TransactionStatus.REJECTED)
@@ -50,6 +52,7 @@ public class IssuerMockController {
             // 💥 Erro (timeout, servidor indisponível, etc.)
             log.error("💥 [MOCK-ISSUER] Falha ao processar transação [{}]", request.pan());
             return AuthorizationResult.builder()
+                    .transactionId(transactionId)
                     .responseCode("91")
                     .timestamp(LocalDateTime.now())
                     .status(TransactionStatus.UNRECOGNIZED)

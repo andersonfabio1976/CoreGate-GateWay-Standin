@@ -1,12 +1,10 @@
 package br.com.coregate.finalizer.service;
 
-import br.com.coregate.infrastructure.enums.OperationalMode;
-import br.com.coregate.infrastructure.mode.OperationalModeManager;
-import br.com.coregate.infrastructure.rabbitmq.RabbitFactory;
-import br.com.coregate.infrastructure.enums.RabbitQueueType;
-import br.com.coregate.application.dto.transaction.TransactionCommand;
+import br.com.coregate.core.contracts.dto.transaction.TransactionCommand;
 import br.com.coregate.domain.enums.*;
 import br.com.coregate.domain.vo.Pan;
+import br.com.coregate.mode.OperationalModeManager;
+import br.com.coregate.rabbitmq.factory.RabbitFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -65,7 +63,7 @@ public class HealthCheck {
         }
 
         // Só roda se estiver em modo automático
-        if (current != OperationalMode.STANDIN_AUTOMATIC) {
+        if (current != OperationalMode.STANDIN) {
             return;
         }
 
@@ -111,9 +109,9 @@ public class HealthCheck {
             failCount = 0;
         }
 
-        if (modeManager.getMode() == OperationalMode.STANDIN_AUTOMATIC) {
+        if (modeManager.getMode() == OperationalMode.STANDIN) {
             log.info("🔄 [HEALTHCHECK] Emissor ativo — alternando para modo GATEWAY.");
-            rabbitFactory.publish(RabbitQueueType.GATEWAY, RabbitQueueType.GATEWAY.name());
+            modeManager.switchTo(OperationalMode.GATEWAY,"Emissor Ativo");
         } else {
             log.debug("ℹ️ [HEALTHCHECK] Ignorando restauração — modo atual: {}", modeManager.getMode());
         }
@@ -128,7 +126,7 @@ public class HealthCheck {
 
         if (failCount >= maxFails) {
             log.error("💥 [HEALTHCHECK] Emissor indisponível — publicando STANDIN_AUTOMATIC.");
-            rabbitFactory.publish(RabbitQueueType.STANDIN_AUTOMATIC, RabbitQueueType.STANDIN_AUTOMATIC.name());
+            modeManager.switchTo(OperationalMode.STANDIN, "Falha de Comunicação Com Emissor");
         }
     }
 }

@@ -1,10 +1,12 @@
 server:
   port: 8085
 
-
 spring:
   config:
-    import: resilience4j.yml, application-infrastructure.yml
+    import:
+      - resilience4j.yml
+      - classpath:rabbit-queues.yml
+      - classpath:rabbit-application.yml
     cloud:
       openfeign:
         compression:
@@ -21,7 +23,7 @@ spring:
 
 coregate:
   issuer:
-    url: http://localhost:9095 # URL do emissor mock
+    url: http://localhost:1110 # URL do emissor mock
     endpoint-authorize: /api/v1/issuer/authorize
     health-max-fails: 3
     health-interval-ms: 300000

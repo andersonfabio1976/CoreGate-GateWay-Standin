@@ -3,18 +3,26 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/MockEmissor/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/MockPos/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/adapter/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/adapters/adapter-metrics/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/adapters/adapter-operational-mode/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/adapters/adapter-oracle/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/advice/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/context/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/core/application/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/core-contracts/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/core/core-iso-processor/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/core/domain/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/data/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/finalizer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/infrastructure-rabbit/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/infrastructure/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/ingress/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/iso-processor/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/orchestrator/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/rules/infrastructure-mode/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/rules/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$APPLICATION_HOME_DIR$/bin/src/main/java" charset="UTF-8" />
   </component>
 </project>

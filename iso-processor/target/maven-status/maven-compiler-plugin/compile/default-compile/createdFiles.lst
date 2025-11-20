@@ -1,0 +1,10 @@
+br\com\coregate\annotations\iso\annotations\VarType.class
+br\com\coregate\annotations\iso\runtime\FieldSpec.class
+br\com\coregate\annotations\iso\enums\IsoVarType.class
+br\com\coregate\annotations\iso\runtime\IsoCodec.class
+br\com\coregate\IsoProcessorApplication.class
+br\com\coregate\core\contracts\iso8583\annotations\iso\processor\IsoMapperProcessor$FieldSpec.class
+br\com\coregate\core\contracts\iso8583\annotations\iso\processor\IsoMapperProcessor.class
+br\com\coregate\annotations\iso\annotations\IsoMessage.class
+META-INF\services\javax.annotation.processing.Processor
+br\com\coregate\annotations\iso\annotations\IsoField.class

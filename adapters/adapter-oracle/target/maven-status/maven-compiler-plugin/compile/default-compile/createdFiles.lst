@@ -1,0 +1,4 @@
+br\com\coregate\adapters\repository\TenantRepositoryAdapter.class
+br\com\coregate\adapters\repository\TransactionRepositoryAdapter.class
+br\com\coregate\AdapterApplication.class
+br\com\coregate\adapters\repository\MerchantRepositoryAdapter.class

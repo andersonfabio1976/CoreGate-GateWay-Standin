@@ -25,6 +25,11 @@
             <artifactId>domain</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>br.com.coregate</groupId>
+            <artifactId>core-contracts</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
 
         <!-- Spring Context (para beans e @Service) -->
         <dependency>

@@ -1,7 +1,7 @@
 package br.com.coregate.finalizer.client;
 
-import br.com.coregate.application.dto.transaction.AuthorizationResult;
-import br.com.coregate.application.dto.transaction.TransactionCommand;
+import br.com.coregate.core.contracts.dto.transaction.AuthorizationResult;
+import br.com.coregate.core.contracts.dto.transaction.TransactionCommand;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,11 +23,24 @@ public class IssuerClient {
 
     private final RestTemplate restTemplate;
 
-    @Value("${coregate.issuer.url:http://localhost:1110/api/v1/issuer/authorize}")
-    private String issuerUrl;
+    @Value("${coregate.issuer.url:http://localhost:1110}")
+    private String issuerBaseUrl;
+
+    @Value("${coregate.issuer.endpoint-authorize:/api/v1/issuer/authorize}")
+    private String authorizeEndpoint;
+
+    private String buildIssuerUrl() {
+        return issuerBaseUrl.endsWith("/")
+                ? issuerBaseUrl.substring(0, issuerBaseUrl.length() - 1) + authorizeEndpoint
+                : issuerBaseUrl + authorizeEndpoint;
+    }
 
     public AuthorizationResult authorize(TransactionCommand command) {
         try {
+
+            String issuerUrl = buildIssuerUrl();
+
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 

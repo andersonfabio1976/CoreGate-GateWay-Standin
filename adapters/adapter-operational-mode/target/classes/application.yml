@@ -1,0 +1,12 @@
+rabbit:
+  produces:
+    operational_mode:
+      queue: coregate.queue.operational_mode
+      exchange: coregate.exchange.operational_mode
+      routing-key: coregate.routing-key.operational_mode
+
+  consumers:
+    operational_mode:
+      queue: coregate.queue.operational_mode
+      exchange: coregate.exchange.operational_mode
+      routing-key: coregate.routing-key.operational_mode

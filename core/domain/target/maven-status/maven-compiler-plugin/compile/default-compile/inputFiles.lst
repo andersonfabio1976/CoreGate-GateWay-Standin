@@ -5,9 +5,11 @@ C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\TransactionType.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\model\Transaction.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\TransactionStatus.java
+C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\OperationalMode.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\ApplicationDomain.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\ChannelType.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\vo\MerchantId.java
+C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\enums\SagaStatus.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\model\Merchant.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\vo\Pan.java
 C:\DevTools\Projects\core-gate\core\domain\src\main\java\br\com\coregate\domain\vo\TimeWindow.java
