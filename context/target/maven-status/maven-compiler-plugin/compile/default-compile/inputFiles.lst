@@ -1,7 +1,7 @@
 C:\DevTools\Projects\core-gate\context\src\main\java\br\com\coregate\context\templates\TemplateIsoAnnotationsUse.java
 C:\DevTools\Projects\core-gate\context\src\main\java\br\com\coregate\context\ContextApplication.java
 C:\DevTools\Projects\core-gate\context\src\main\java\br\com\coregate\context\grpc\server\GrpcServerComponent.java
+C:\DevTools\Projects\core-gate\context\src\main\java\br\com\coregate\context\grpc\client\TransactionFlowClientFactory.java
 C:\DevTools\Projects\core-gate\context\src\main\java\br\com\coregate\context\templates\TemplateRabbitUse.java
-C:\DevTools\Projects\core-gate\context\src\main\java\br\com\coregate\context\grpc\client\GrpcContextClientFactory.java
-C:\DevTools\Projects\core-gate\context\src\main\java\br\com\coregate\context\grpc\client\GrpcContextClientService.java
-C:\DevTools\Projects\core-gate\context\src\main\java\br\com\coregate\context\grpc\server\GrpcContextServerService.java
+C:\DevTools\Projects\core-gate\context\src\main\java\br\com\coregate\context\grpc\client\TransactionFlowClientService.java
+C:\DevTools\Projects\core-gate\context\src\main\java\br\com\coregate\context\grpc\server\GrpcTransactionIsoService.java

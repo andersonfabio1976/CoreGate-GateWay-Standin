@@ -1,0 +1,91 @@
+name: CoreGate Manual Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      module:
+        description: "Selecione o módulo para deploy"
+        required: true
+        type: choice
+        options:
+          - ingress
+          - context
+          - orchestrator
+          - rules
+          - finalizer
+          - mockissuer
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # ---------------------
+      # MAPEAR O MODULO → ECR E DIRETORIO
+      # ---------------------
+      - name: Definir variáveis do módulo
+        id: vars
+        run: |
+          case "${{ github.event.inputs.module }}" in
+            ingress)
+              echo "ECR_REPO=coregate-ingress" >> $GITHUB_ENV
+              echo "MODULE_DIR=ingress" >> $GITHUB_ENV
+              ;;
+            context)
+              echo "ECR_REPO=coregate-context" >> $GITHUB_ENV
+              echo "MODULE_DIR=context" >> $GITHUB_ENV
+              ;;
+            orchestrator)
+              echo "ECR_REPO=coregate-orchestrator" >> $GITHUB_ENV
+              echo "MODULE_DIR=orchestrator" >> $GITHUB_ENV
+              ;;
+            rules)
+              echo "ECR_REPO=coregate-rules" >> $GITHUB_ENV
+              echo "MODULE_DIR=rules" >> $GITHUB_ENV
+              ;;
+            finalizer)
+              echo "ECR_REPO=coregate-finalizer" >> $GITHUB_ENV
+              echo "MODULE_DIR=finalizer" >> $GITHUB_ENV
+              ;;
+            mockissuer)
+              echo "ECR_REPO=coregate-mockissuer" >> $GITHUB_ENV
+              echo "MODULE_DIR=mockissuer" >> $GITHUB_ENV
+              ;;
+          esac
+
+      # ---------------------
+      # LOGIN NA AWS
+      # ---------------------
+      - name: Configurar credenciais AWS
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login no Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # ---------------------
+      # BUILD DO DOCKERFILE DO MÓDULO
+      # ---------------------
+      - name: Build Docker Image
+        run: |
+          cd $MODULE_DIR
+          docker build -t $ECR_REPO:latest .
+
+      # ---------------------
+      # TAG E PUSH PARA O ECR
+      # ---------------------
+      - name: Tag Image
+        run: |
+          docker tag $ECR_REPO:latest \
+            ${{ steps.ecr.outputs.registry }}/$ECR_REPO:latest
+
+      - name: Push Image
+        run: |
+          docker push ${{ steps.ecr.outputs.registry }}/$ECR_REPO:latest

@@ -1,11 +1,10 @@
 syntax = "proto3";
 
-package br.com.coregate.infrastructure;
-
 import "common/transaction-status.proto";
+import "google/type/datetime.proto";
 
 option java_multiple_files = true;
-option java_package = "br.com.coregate.proto.common";
+option java_package = "br.com.coregate.core.contracts";
 option java_outer_classname = "AuthorizationResultProto";
 
 /**
@@ -13,9 +12,9 @@ option java_outer_classname = "AuthorizationResultProto";
  */
 message AuthorizationResult {
     string transactionId = 1;
-    TransactionStatus status = 2;
+    br.com.coregate.core.contracts.TransactionStatus status = 2;
     string authorizationCode = 3;
     string responseCode = 4;
-    int64 timestampEpochMs = 5;
+    google.type.DateTime date = 5;
     string mti = 6;
 }

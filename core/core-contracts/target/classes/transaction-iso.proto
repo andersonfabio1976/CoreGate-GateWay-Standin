@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.core.contracts";
+option java_outer_classname = "TransactionIsoProto";
+
+
+message RequestTransactionIsoProto {
+    string transactionId = 1;
+    bytes rawBytes = 2;
+    string hexString = 3;
+}
+
+message ResponseTransactionIsoProto {
+    string transactionId = 1;
+    bytes rawBytes = 2;
+    string hexString = 3;
+}
+
+service TransactionIsoServiceProto {
+    rpc connect(RequestTransactionIsoProto) returns (ResponseTransactionIsoProto);
+}

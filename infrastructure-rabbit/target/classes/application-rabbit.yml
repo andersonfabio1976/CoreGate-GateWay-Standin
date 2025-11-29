@@ -1,0 +1,20 @@
+#server:
+  #port: 8082
+
+spring:
+  config:
+    import: optional:classpath:/queues-rabbit.yml
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: coregate
+    password: coregate
+    listener:
+      simple:
+        acknowledge-mode: auto
+        default-requeue-rejected: false
+    connection-timeout: 30000
+
+#  grpc:
+#    host: localhost
+#    port: 8090

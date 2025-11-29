@@ -1,0 +1,48 @@
+
+
+
+rabbit:
+  produces:
+    notify:
+      queue: coregate.queue.notify
+      exchange: coregate.exchange.notify
+      routing-key: coregate.routing-key.notify
+    register:
+      queue: coregate.queue.register
+      exchange: coregate.exchange.register
+      routing-key: coregate.routing-key.register
+    operational_mode:
+      queue: coregate.queue.operational_mode
+      exchange: coregate.exchange.operational_mode
+      routing-key: coregate.routing-key.operational_mode
+    transaction:
+      queue: coregate.queue.transaction
+      exchange: coregate.exchange.transaction
+      routing-key: coregate.routing-key.transaction
+    transaction_result:
+      queue: coregate.queue.transaction_result
+      exchange: coregate.exchange.transaction_result
+      routing-key: coregate.routing-key.transaction_result
+
+
+  consumes:
+    notify:
+      queue: coregate.queue.notify
+      exchange: coregate.exchange.notify
+      routing-key: coregate.routing-key.notify
+    register:
+      queue: coregate.queue.register
+      exchange: coregate.exchange.register
+      routing-key: coregate.routing-key.register
+    operational_mode:
+      queue: coregate.queue.operational_mode
+      exchange: coregate.exchange.operational_mode
+      routing-key: coregate.routing-key.operational_mode
+    transaction:
+      queue: coregate.queue.transaction
+      exchange: coregate.exchange.transaction
+      routing-key: coregate.routing-key.transaction
+    transaction_result:
+      queue: coregate.queue.transaction_result
+      exchange: coregate.exchange.transaction_result
+      routing-key: coregate.routing-key.transaction_result

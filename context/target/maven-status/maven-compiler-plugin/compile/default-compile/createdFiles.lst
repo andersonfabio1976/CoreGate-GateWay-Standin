@@ -1,5 +1,4 @@
-br\com\coregate\context\grpc\server\GrpcContextServerService.class
-br\com\coregate\context\grpc\client\GrpcContextClientFactory.class
 br\com\coregate\context\grpc\server\GrpcServerComponent.class
 br\com\coregate\context\ContextApplication.class
-br\com\coregate\context\grpc\client\GrpcContextClientService.class
+br\com\coregate\context\grpc\client\TransactionFlowClientService.class
+br\com\coregate\context\grpc\server\GrpcTransactionIsoService.class

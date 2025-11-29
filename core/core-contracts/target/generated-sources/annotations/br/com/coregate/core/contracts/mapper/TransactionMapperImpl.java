@@ -1,64 +1,17 @@
 package br.com.coregate.core.contracts.mapper;
 
-import br.com.coregate.core.contracts.dto.orquestrator.OrquestratorRequestDto;
 import br.com.coregate.core.contracts.dto.transaction.TransactionCommand;
-import br.com.coregate.core.contracts.dto.transaction.TransactionModel;
 import br.com.coregate.domain.model.Transaction;
-import br.com.coregate.proto.Orquestrator.OrquestratorRequestProto;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-19T21:41:46-0300",
+    date = "2025-11-29T08:54:01-0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.8 (Oracle Corporation)"
 )
 @Component
 public class TransactionMapperImpl implements TransactionMapper {
-
-    @Override
-    public TransactionModel toModel(OrquestratorRequestProto proto) {
-        if ( proto == null ) {
-            return null;
-        }
-
-        TransactionModel.TransactionModelBuilder transactionModel = TransactionModel.builder();
-
-        return transactionModel.build();
-    }
-
-    @Override
-    public OrquestratorRequestProto toProto(TransactionModel model) {
-        if ( model == null ) {
-            return null;
-        }
-
-        OrquestratorRequestProto.Builder orquestratorRequestProto = OrquestratorRequestProto.newBuilder();
-
-        return orquestratorRequestProto.build();
-    }
-
-    @Override
-    public TransactionModel toModel(OrquestratorRequestDto dto) {
-        if ( dto == null ) {
-            return null;
-        }
-
-        TransactionModel.TransactionModelBuilder transactionModel = TransactionModel.builder();
-
-        return transactionModel.build();
-    }
-
-    @Override
-    public OrquestratorRequestDto toDto(TransactionModel model) {
-        if ( model == null ) {
-            return null;
-        }
-
-        OrquestratorRequestDto.OrquestratorRequestDtoBuilder orquestratorRequestDto = OrquestratorRequestDto.builder();
-
-        return orquestratorRequestDto.build();
-    }
 
     @Override
     public TransactionCommand toDto(Transaction domain) {
@@ -83,7 +36,7 @@ public class TransactionMapperImpl implements TransactionMapper {
     }
 
     @Override
-    public Transaction toDoman(TransactionCommand dto) {
+    public Transaction toDomain(TransactionCommand dto) {
         if ( dto == null ) {
             return null;
         }

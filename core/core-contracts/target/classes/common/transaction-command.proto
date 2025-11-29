@@ -6,10 +6,10 @@ import "common/currency-code.proto";
 import "common/processing-code-type.proto";
 import "common/transaction-status.proto";
 
-package br.com.coregate.infrastructure;
+package br.com.coregate.core.contracts;
 
 option java_multiple_files = true;
-option java_package = "br.com.coregate.proto.transaction";
+option java_package = "br.com.coregate.core.contracts";
 option java_outer_classname = "TransactionCommandProto";
 
 // =======================================================
@@ -38,17 +38,18 @@ message Pan {
 // 📤 Context → Orquestrator
 // =======================================================
 message TransactionCommand {
-    string tenantId = 1;
-    string merchantId = 2;
-    double amount = 3;
-    CurrencyCode currency = 4;
-    CardBrandType brand = 5;
-    ChannelType channel = 6;
-    TransactionType type = 7;
-    Pan pan = 8;
-    string mti = 9;
-    string mcc = 10;
-    ProcessingCodeType operation = 11;
-    TransactionStatus statusProto = 12;
+    string transactionId = 1;
+    string tenantId = 2;
+    string merchantId = 3;
+    double amount = 4;
+    CurrencyCode currency = 5;
+    CardBrandType brand = 6;
+    ChannelType channel = 7;
+    TransactionType type = 8;
+    Pan pan = 9;
+    string mti = 10;
+    string mcc = 11;
+    ProcessingCodeType operation = 12;
+    TransactionStatus statusProto = 13;
 }
 

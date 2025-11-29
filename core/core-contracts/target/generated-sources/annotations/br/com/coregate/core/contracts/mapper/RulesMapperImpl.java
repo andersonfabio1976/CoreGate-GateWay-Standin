@@ -1,17 +1,17 @@
 package br.com.coregate.core.contracts.mapper;
 
-import br.com.coregate.core.contracts.dto.rules.DecisionOutcome;
+import br.com.coregate.core.contracts.DecisionOutcome;
+import br.com.coregate.core.contracts.RulesRequestProto;
+import br.com.coregate.core.contracts.RulesResponseProto;
 import br.com.coregate.core.contracts.dto.rules.RulesRequestDto;
 import br.com.coregate.core.contracts.dto.rules.RulesResponseDto;
 import br.com.coregate.core.contracts.dto.rules.StandinDecision;
-import br.com.coregate.proto.rules.RulesRequestProto;
-import br.com.coregate.proto.rules.RulesResponseProto;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-11-19T21:41:46-0300",
+    date = "2025-11-29T08:54:01-0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.8 (Oracle Corporation)"
 )
 @Component
@@ -71,46 +71,7 @@ public class RulesMapperImpl implements RulesMapper {
         return rulesResponseDto.build();
     }
 
-    protected br.com.coregate.proto.rules.DecisionOutcome decisionOutcomeToDecisionOutcome(DecisionOutcome decisionOutcome) {
-        if ( decisionOutcome == null ) {
-            return null;
-        }
-
-        br.com.coregate.proto.rules.DecisionOutcome decisionOutcome1;
-
-        switch ( decisionOutcome ) {
-            case DECISION_OUTCOME_UNSPECIFIED: decisionOutcome1 = br.com.coregate.proto.rules.DecisionOutcome.DECISION_OUTCOME_UNSPECIFIED;
-            break;
-            case APPROVED: decisionOutcome1 = br.com.coregate.proto.rules.DecisionOutcome.APPROVED;
-            break;
-            case DECLINED: decisionOutcome1 = br.com.coregate.proto.rules.DecisionOutcome.DECLINED;
-            break;
-            case REVIEW: decisionOutcome1 = br.com.coregate.proto.rules.DecisionOutcome.REVIEW;
-            break;
-            case UNRECOGNIZED: decisionOutcome1 = br.com.coregate.proto.rules.DecisionOutcome.UNRECOGNIZED;
-            break;
-            default: throw new IllegalArgumentException( "Unexpected enum constant: " + decisionOutcome );
-        }
-
-        return decisionOutcome1;
-    }
-
-    protected br.com.coregate.proto.rules.StandinDecision standinDecisionToStandinDecision(StandinDecision standinDecision) {
-        if ( standinDecision == null ) {
-            return null;
-        }
-
-        br.com.coregate.proto.rules.StandinDecision.Builder standinDecision1 = br.com.coregate.proto.rules.StandinDecision.newBuilder();
-
-        standinDecision1.setOutcome( decisionOutcomeToDecisionOutcome( standinDecision.getOutcome() ) );
-        standinDecision1.setReason( standinDecision.getReason() );
-        standinDecision1.setAuthCode( standinDecision.getAuthCode() );
-        standinDecision1.setRequestId( standinDecision.getRequestId() );
-
-        return standinDecision1.build();
-    }
-
-    protected DecisionOutcome decisionOutcomeToDecisionOutcome1(br.com.coregate.proto.rules.DecisionOutcome decisionOutcome) {
+    protected DecisionOutcome decisionOutcomeToDecisionOutcome(br.com.coregate.core.contracts.dto.rules.DecisionOutcome decisionOutcome) {
         if ( decisionOutcome == null ) {
             return null;
         }
@@ -134,7 +95,46 @@ public class RulesMapperImpl implements RulesMapper {
         return decisionOutcome1;
     }
 
-    protected StandinDecision standinDecisionToStandinDecision1(br.com.coregate.proto.rules.StandinDecision standinDecision) {
+    protected br.com.coregate.core.contracts.StandinDecision standinDecisionToStandinDecision(StandinDecision standinDecision) {
+        if ( standinDecision == null ) {
+            return null;
+        }
+
+        br.com.coregate.core.contracts.StandinDecision.Builder standinDecision1 = br.com.coregate.core.contracts.StandinDecision.newBuilder();
+
+        standinDecision1.setOutcome( decisionOutcomeToDecisionOutcome( standinDecision.getOutcome() ) );
+        standinDecision1.setReason( standinDecision.getReason() );
+        standinDecision1.setAuthCode( standinDecision.getAuthCode() );
+        standinDecision1.setRequestId( standinDecision.getRequestId() );
+
+        return standinDecision1.build();
+    }
+
+    protected br.com.coregate.core.contracts.dto.rules.DecisionOutcome decisionOutcomeToDecisionOutcome1(DecisionOutcome decisionOutcome) {
+        if ( decisionOutcome == null ) {
+            return null;
+        }
+
+        br.com.coregate.core.contracts.dto.rules.DecisionOutcome decisionOutcome1;
+
+        switch ( decisionOutcome ) {
+            case DECISION_OUTCOME_UNSPECIFIED: decisionOutcome1 = br.com.coregate.core.contracts.dto.rules.DecisionOutcome.DECISION_OUTCOME_UNSPECIFIED;
+            break;
+            case APPROVED: decisionOutcome1 = br.com.coregate.core.contracts.dto.rules.DecisionOutcome.APPROVED;
+            break;
+            case DECLINED: decisionOutcome1 = br.com.coregate.core.contracts.dto.rules.DecisionOutcome.DECLINED;
+            break;
+            case REVIEW: decisionOutcome1 = br.com.coregate.core.contracts.dto.rules.DecisionOutcome.REVIEW;
+            break;
+            case UNRECOGNIZED: decisionOutcome1 = br.com.coregate.core.contracts.dto.rules.DecisionOutcome.UNRECOGNIZED;
+            break;
+            default: throw new IllegalArgumentException( "Unexpected enum constant: " + decisionOutcome );
+        }
+
+        return decisionOutcome1;
+    }
+
+    protected StandinDecision standinDecisionToStandinDecision1(br.com.coregate.core.contracts.StandinDecision standinDecision) {
         if ( standinDecision == null ) {
             return null;
         }

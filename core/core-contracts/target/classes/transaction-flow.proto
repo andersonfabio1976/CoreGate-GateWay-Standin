@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package br.com.coregate.core.contracts;
+
+import "common/transaction-command.proto";
+import "common/authorization-result.proto";
+
+option java_multiple_files = true;
+option java_package = "br.com.coregate.core.contracts";
+option java_outer_classname = "TransactionFlowProto";
+
+
+message RequestTransactionFlowProto {
+    TransactionCommand transactionCommand = 1;
+}
+
+message ResponseTransactionFlowProto {
+    AuthorizationResult authorizationResult = 1;
+    TransactionCommand transactionCommand = 2;
+}
+
+service TransactionFlowServiceProto {
+    rpc connect(RequestTransactionFlowProto) returns (ResponseTransactionFlowProto);
+}
