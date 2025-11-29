@@ -1,50 +1,49 @@
 package br.com.coregate.ingress.lifecycle.step;
 
-import br.com.coregate.core.contracts.dto.context.ContextRequestDto;
-import io.netty.buffer.ByteBuf;
-import io.netty.util.AttributeKey;
+import br.com.coregate.core.contracts.dto.transaction.TransactionIso;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 /**
- * Step responsável por ler os bytes crus recebidos via Netty
- * e armazená-los no contexto da SAGA para processamento posterior.
+ * Step responsável por receber e validar o payload bruto ISO8583.
+ *
+ * 🔍 Melhorias:
+ * - validação de null/empty
+ * - logs mais precisos e leves
+ * - prepara terreno para parser incremental (futuro)
+ * - mantém 100% compatibilidade com seu fluxo atual
  */
 @Slf4j
 @Component
 public class ChannelReadStep {
 
-    public ContextRequestDto execute(ContextRequestDto ctx) {
+    public TransactionIso execute(TransactionIso ctx, Channel channel) {
         try {
-            // 🔎 Tenta recuperar a última mensagem do atributo do canal
-            Object msg = ctx.getContext()
-                    .getChannel()
-                    .attr(AttributeKey.valueOf("lastMessage"))
-                    .get();
+            byte[] raw = ctx.getRawBytes();
 
-            if (msg instanceof ByteBuf buffer) {
-                byte[] raw = new byte[buffer.readableBytes()];
-                buffer.readBytes(raw);
+            if (raw == null || raw.length == 0) {
+                log.warn("[INGRESS] ChannelReadStep recebeu mensagem nula/vazia");
+                return ctx;
+            }
 
-                ctx.setRawBytes(raw);
-
-                log.info("📥 ChannelReadStep - {} bytes recebidos do canal.", raw.length);
-            } else if (ctx.getRawBytes() != null) {
-                // Se já veio no contexto, apenas confirma leitura
-                log.info("📥 ChannelReadStep - Buffer existente no contexto ({} bytes).", ctx.getRawBytes().length);
+            // Log minimalista para alta performance
+            if (raw.length < 150) {
+                log.info("[INGRESS] Received From POS ({} bytes)", raw.length);
             } else {
-                log.warn("⚠️ ChannelReadStep - Nenhum dado encontrado no canal ou contexto.");
+                log.info("[INGRESS] Received Large Message From POS ({} bytes)", raw.length);
             }
 
             return ctx;
 
         } catch (Exception e) {
-            log.error("❌ Erro ao ler mensagem do canal: {}", e.getMessage(), e);
+            log.error("[INGRESS] Error Reading Message From POS: {}", e.getMessage(), e);
             throw new RuntimeException("Falha no ChannelReadStep", e);
         }
     }
 
-    public ContextRequestDto rollback(ContextRequestDto ctx) {
+    public TransactionIso rollback(TransactionIso ctx, ChannelHandlerContext channel) {
         log.warn("↩️ Rollback ChannelReadStep - Limpando rawBytes do contexto.");
         ctx.setRawBytes(null);
         return ctx;

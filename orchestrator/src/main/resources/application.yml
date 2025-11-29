@@ -8,9 +8,17 @@ spring:
     import:
       - classpath:management.yml
       - classpath:metrics.yml
-      - classpath:rabbit-queues.yml
-      - classpath:rabbit-application.yml
+      - classpath:queues-rabbit.yml
+      - classpath:application-rabbit.yml
 
 grpc:
   server:
     port: 8091
+    threads: 64
+
+  finalizer:
+    host: localhost
+    port: 8092
+  rules:
+    host: localhost
+    port: 8093

@@ -5,8 +5,8 @@ spring:
   config:
     import:
       - resilience4j.yml
-      - classpath:rabbit-queues.yml
-      - classpath:rabbit-application.yml
+      - classpath:queues-rabbit.yml
+      - classpath:application-rabbit.yml
     cloud:
       openfeign:
         compression:
@@ -31,3 +31,4 @@ coregate:
 grpc:
   server:
     port: 8092
+    threads: 64

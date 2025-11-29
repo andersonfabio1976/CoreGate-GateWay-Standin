@@ -9,8 +9,8 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>orquestrator</artifactId>
-    <name>CoreGate - Orquestrator</name>
+    <artifactId>orchestrator</artifactId>
+    <name>CoreGate - Orchestrator</name>
 
     <dependencies>
         <dependency>

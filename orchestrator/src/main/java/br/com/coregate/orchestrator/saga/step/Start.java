@@ -1,6 +1,6 @@
 package br.com.coregate.orchestrator.saga.step;
 
-import br.com.coregate.core.contracts.dto.orquestrator.OrquestratorSagaContext;
+import br.com.coregate.core.contracts.dto.orquestrator.OrchestratorSagaContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -8,15 +8,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class Start {
 
-    public OrquestratorSagaContext execute(OrquestratorSagaContext tx) {
+    public OrchestratorSagaContext execute(OrchestratorSagaContext tx) {
         log.info("🏁 Starting saga for {}", tx);
         return tx;
     }
 
-    public  OrquestratorSagaContext rollback(OrquestratorSagaContext tx) {
+    public  OrchestratorSagaContext rollback(OrchestratorSagaContext tx) {
         log.warn("↩️ Rolling back Start data for {}", tx);
-        // Aqui você desfaz o que foi carregado (limpa o contexto, por exemplo)
-        //tx.setMerchantData(null);
         return tx;
     }
 

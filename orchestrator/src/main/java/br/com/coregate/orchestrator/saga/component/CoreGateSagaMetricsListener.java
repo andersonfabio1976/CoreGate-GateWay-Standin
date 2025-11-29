@@ -1,7 +1,6 @@
 package br.com.coregate.orchestrator.saga.component;
 
-import br.com.coregate.core.contracts.dto.orquestrator.OrquestratorSagaContext;
-import br.com.coregate.domain.enums.OperationalMode;
+import br.com.coregate.core.contracts.dto.orquestrator.OrchestratorSagaContext;
 import br.com.coregate.domain.enums.SagaStatus;
 import br.com.coregate.mode.OperationalModeManager;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -17,16 +16,16 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CoreGateSagaMetricsListener implements SagaMetricsListener<OrquestratorSagaContext> {
+public class CoreGateSagaMetricsListener implements SagaMetricsListener<OrchestratorSagaContext> {
 
     private final MeterRegistry meter;
     private final OperationalModeManager modeManager;
 
     @Override
-    public void onComplete(String sagaName, OrquestratorSagaContext tx, SagaStatus status) {
+    public void onComplete(String sagaName, OrchestratorSagaContext tx, SagaStatus status) {
         try {
-            String tenant = tx.getTransaction().getTenantId() != null ? tx.getTransaction().getTenantId() : "unknown";
-            String type = tx.getTransaction().getType() != null ? tx.getTransaction().getType().name() : "UNKNOWN";
+            String tenant = tx.getTransactionCommand().tenantId() != null ? tx.getTransactionCommand().tenantId() : "unknown";
+            String type = tx.getTransactionCommand().type() != null ? tx.getTransactionCommand().type().name() : "UNKNOWN";
             String mode = modeManager != null ? modeManager.getMode().name() : "UNKNOWN";
 
             meter.counter("coregate.saga.completed",

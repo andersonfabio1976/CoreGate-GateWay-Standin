@@ -8,5 +8,7 @@ public enum RabbitQueueType {
     NOTIFY,
     AUDIT,
     REGISTER,
-    OPERATIONAL_MODE;
+    OPERATIONAL_MODE,
+    TRANSACTION_RESULT,
+    TRANSACTION;
 }

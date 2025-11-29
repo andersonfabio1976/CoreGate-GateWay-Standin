@@ -1,6 +1,6 @@
 package br.com.coregate.orchestrator.saga.step;
 
-import br.com.coregate.core.contracts.dto.orquestrator.OrquestratorSagaContext;
+import br.com.coregate.core.contracts.dto.orquestrator.OrchestratorSagaContext;
 import br.com.coregate.core.contracts.dto.rabbit.RabbitQueueType;
 import br.com.coregate.rabbitmq.factory.RabbitFactory;
 import lombok.AllArgsConstructor;
@@ -14,15 +14,13 @@ public class Register {
 
     private final RabbitFactory rabbitFactory;
 
-    public OrquestratorSagaContext execute(OrquestratorSagaContext tx) {
-
+    public OrchestratorSagaContext execute(OrchestratorSagaContext tx) {
         log.info("💾 Registering transaction state...");
-        rabbitFactory.publish(RabbitQueueType.REGISTER,tx.getTransaction());
+        rabbitFactory.publish(RabbitQueueType.REGISTER,tx.getTransactionCommand());
         return tx;
-
     }
 
-    public  OrquestratorSagaContext rollback(OrquestratorSagaContext tx) {
+    public  OrchestratorSagaContext rollback(OrchestratorSagaContext tx) {
         if (tx == null) {
             log.warn("⚠️ Cannot rollback Register: context is null");
             return null;

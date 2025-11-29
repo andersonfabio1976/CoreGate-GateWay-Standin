@@ -1,4 +1,4 @@
-package br.com.coregate.infrastructure.saga;
+package br.com.coregate.orchestrator.saga.component;
 
 import br.com.coregate.domain.enums.OperationalMode;
 import br.com.coregate.domain.enums.TransactionType;

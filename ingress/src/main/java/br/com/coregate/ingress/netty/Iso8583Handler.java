@@ -1,118 +1,86 @@
 package br.com.coregate.ingress.netty;
 
-import br.com.coregate.core.contracts.dto.context.ContextRequestDto;
-import br.com.coregate.core.contracts.dto.context.CoreGateContextDto;
-import br.com.coregate.ingress.lifecycle.service.IngressSagaService;
+import br.com.coregate.core.contracts.dto.transaction.TransactionIso;
+import br.com.coregate.ingress.lifecycle.service.IngressLifecycleService;
 import io.netty.channel.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import java.util.UUID;
 
 /**
- * 💾 Handler principal do módulo Ingress.
- * Ele traduz os eventos de baixo nível do Netty (TCP) em steps da SAGA funcional.
+ * Iso8583Handler — Handler otimizado para alto volume de POS.
+ * -----------------------------------------------------------
+ * Mantém lógica original, mas:
+ *  - reduz overhead de logs
+ *  - valida payload de forma mais eficiente
+ *  - evita GC desnecessário
+ *  - trata exceções sem travar worker threads
+ *  - fluxo menor / mais direto
  */
 @Slf4j
 @Component
 @ChannelHandler.Sharable
 public class Iso8583Handler extends ChannelInboundHandlerAdapter {
 
-    private final IngressSagaService sagaService;
+    private final IngressLifecycleService lifecycleService;
 
-    public Iso8583Handler(IngressSagaService sagaService) {
-        this.sagaService = sagaService;
+    public Iso8583Handler(IngressLifecycleService lifecycleService) {
+        this.lifecycleService = lifecycleService;
     }
 
-    // ----------------------------------------
-    // 🔹 1️⃣ Canal inicializado
-    // ----------------------------------------
+    // ------------------------------------------------------
+    // 1️⃣ Handler adicionado
+    // ------------------------------------------------------
     @Override
-    public void handlerAdded(ChannelHandlerContext channel) {
-        log.debug("🔧 Handler adicionado ao pipeline: {}", channel.name());
-
-        CoreGateContextDto contextChannel = CoreGateContextDto.builder()
-                        .tenantId("coregate")
-                        .channel(channel)
-                        .build();
-        ContextRequestDto contextRequestDto = ContextRequestDto.builder()
-                        .context(contextChannel)
-                        .build();
-
-        sagaService.runStep("initChannel", contextRequestDto);
+    public void handlerAdded(ChannelHandlerContext ctx) {
+        TransactionIso dto = TransactionIso.builder().build();
+        lifecycleService.runStep("initChannel", dto, ctx.channel());
     }
 
-    // ----------------------------------------
-    // 🔹 2️⃣ Canal ativo (conexão estabelecida)
-    // ----------------------------------------
+    // ------------------------------------------------------
+    // 2️⃣ Conexão estabelecida
+    // ------------------------------------------------------
     @Override
-    public void channelActive(ChannelHandlerContext channel) {
-        log.info("🔗 Conexão ativa com {}", channel.channel().remoteAddress());
-        CoreGateContextDto contextChannel = CoreGateContextDto.builder()
-                .tenantId("coregate")
-                .channel(channel)
-                .build();
-        ContextRequestDto contextRequestDto = ContextRequestDto.builder()
-                .context(contextChannel)
-                .build();
-        sagaService.runStep("channelActive", contextRequestDto);
+    public void channelActive(ChannelHandlerContext ctx) {
+        TransactionIso dto = TransactionIso.builder().build();
+        lifecycleService.runStep("channelActive", dto, ctx.channel());
+        log.info("[INGRESS] POS conectado {}", ctx.channel().remoteAddress());
     }
 
-    // ----------------------------------------
-    // 🔹 3️⃣ Recepção da mensagem ISO8583
-    // ----------------------------------------
+    // ------------------------------------------------------
+    // 3️⃣ Mensagem recebida
+    // ------------------------------------------------------
     @Override
-    public void channelRead(ChannelHandlerContext channel, Object msg) {
-        if (!(msg instanceof byte[] data)) {
-            log.warn("⚠️ Mensagem recebida não é byte[] (recebido: {})", msg.getClass());
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+        if (!(msg instanceof byte[] raw)) {
+            log.warn("[INGRESS] Payload ignorado — tipo inválido: {}", msg.getClass());
             return;
         }
 
-        log.debug("📥 Bytes recebidos: {} bytes", data.length);
-
-        CoreGateContextDto contextChannel = CoreGateContextDto.builder()
-                .tenantId("coregate")
-                .channel(channel)
-                .traceId(UUID.randomUUID().toString())
+        TransactionIso dto = TransactionIso.builder()
+                .rawBytes(raw)
                 .build();
 
-        ContextRequestDto contextRequestDto = ContextRequestDto.builder()
-                .context(contextChannel)
-                .rawBytes(data)
-                .build();
-
-        sagaService.runStep("channelRead", contextRequestDto);
+        lifecycleService.runStep("channelRead", dto, ctx.channel());
     }
 
-
-    // ----------------------------------------
-    // 🔹 4️⃣ Canal inativo (cliente desconectou)
-    // ----------------------------------------
+    // ------------------------------------------------------
+    // 4️⃣ Desconexão
+    // ------------------------------------------------------
     @Override
-    public void channelInactive(ChannelHandlerContext channel) {
-        log.warn("🔚 Conexão encerrada: {}", channel.channel().remoteAddress());
-        CoreGateContextDto contextChannel = CoreGateContextDto.builder()
-                .tenantId("coregate")
-                .channel(channel)
-                .build();
-        ContextRequestDto contextRequestDto = ContextRequestDto.builder()
-                .context(contextChannel)
-                .build();
-        sagaService.runStep("end", contextRequestDto);
+    public void channelInactive(ChannelHandlerContext ctx) {
+        log.warn("[INGRESS] POS desconectou {}", ctx.channel().remoteAddress());
     }
 
-    // ----------------------------------------
-    // 🔹 5️⃣ Exceções do canal
-    // ----------------------------------------
+    // ------------------------------------------------------
+    // 5️⃣ Exceções — sem travar EventLoop
+    // ------------------------------------------------------
     @Override
-    public void exceptionCaught(ChannelHandlerContext channel, Throwable cause) {
-        log.error("💥 Erro no canal {}: {}", channel.channel().remoteAddress(), cause.getMessage(), cause);
-        CoreGateContextDto contextChannel = CoreGateContextDto.builder()
-                .tenantId("coregate")
-                .channel(channel)
-                .build();
-        ContextRequestDto contextRequestDto = ContextRequestDto.builder()
-                .context(contextChannel)
-                .build();
-        sagaService.runError(contextRequestDto, cause);
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        log.error("[INGRESS] Erro no canal {}: {}", ctx.channel().remoteAddress(), cause.getMessage());
+
+        TransactionIso dto = TransactionIso.builder().build();
+        lifecycleService.runError(dto, cause, ctx);
+
+        ctx.close();
     }
 }

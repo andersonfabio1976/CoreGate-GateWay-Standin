@@ -1,6 +1,6 @@
 package br.com.coregate.orchestrator.saga.step;
 
-import br.com.coregate.core.contracts.dto.orquestrator.OrquestratorSagaContext;
+import br.com.coregate.core.contracts.dto.orquestrator.OrchestratorSagaContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -8,16 +8,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class Validate {
 
-    public OrquestratorSagaContext execute(OrquestratorSagaContext tx) {
+    public OrchestratorSagaContext execute(OrchestratorSagaContext tx) {
         log.info("✅ Validating ISO8583 structure "+tx);
         // ISO field, MTI, antifraud
         return tx;
     }
 
-    public OrquestratorSagaContext rollback(OrquestratorSagaContext tx) {
+    public OrchestratorSagaContext rollback(OrchestratorSagaContext tx) {
         log.warn("↩️ Rolling back fetched data for {}", tx);
-        // Aqui você desfaz o que foi carregado (limpa o contexto, por exemplo)
-        //tx.setMerchantData(null);
         return tx;
     }
 

@@ -5,10 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = "br.com.coregate")
 @Slf4j
-public class OrquestratorApplication {
+public class OrchestratorApplication {
 
     public static void main(String[] args) {
-        org.springframework.boot.SpringApplication.run(OrquestratorApplication.class, args);
+        org.springframework.boot.SpringApplication.run(OrchestratorApplication.class, args);
     }
 
 }

@@ -21,28 +21,28 @@ public class IsoToTransactionMapper {
     // 🔽 ISO → TransactionCommand (Decode)
     // ======================================
 
-    public TransactionCommand fromFinancialRequest(FinancialRequestIsoModel model) {
-        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_PURCHASE, "0200", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode());
+    public TransactionCommand fromFinancialRequest(FinancialRequestIsoModel model, String transactionId) {
+        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_PURCHASE, "0200", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode(), transactionId);
     }
 
-    public TransactionCommand fromFinancialResponse(FinancialResponseIsoModel model) {
-        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_PURCHASE, "0210", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode());
+    public TransactionCommand fromFinancialResponse(FinancialResponseIsoModel model, String transactionId) {
+        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_PURCHASE, "0210", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode(), transactionId);
     }
 
-    public TransactionCommand fromReversalRequest(ReversalRequestIsoModel model) {
-        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_REVERSAL, "0400", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode());
+    public TransactionCommand fromReversalRequest(ReversalRequestIsoModel model, String transactionId) {
+        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_REVERSAL, "0400", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode(), transactionId);
     }
 
-    public TransactionCommand fromReversalResponse(ReversalResponseIsoModel model) {
-        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_REVERSAL, "0410", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode());
+    public TransactionCommand fromReversalResponse(ReversalResponseIsoModel model, String transactionId) {
+        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_REVERSAL, "0410", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode(), transactionId);
     }
 
-    public TransactionCommand fromAuthorizationRequest(AuthorizationRequestIsoModel model) {
-        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_AUTHORIZATION, "0100", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode());
+    public TransactionCommand fromAuthorizationRequest(AuthorizationRequestIsoModel model, String transactionId) {
+        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_AUTHORIZATION, "0100", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode(), transactionId);
     }
 
-    public TransactionCommand fromAuthorizationResponse(AuthorizationResponseIsoModel model) {
-        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_AUTHORIZATION, "0110", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode());
+    public TransactionCommand fromAuthorizationResponse(AuthorizationResponseIsoModel model, String transactionId) {
+        return baseCommand(model.getMerchantId(), model.getAmount(), model.getCardNumber(), TransactionType.TRANSACTION_TYPE_AUTHORIZATION, "0110", model.getMcc(), model.getProcessingCode(),model.getChannelType(),model.getCurrencyCode(), transactionId);
     }
 
     // ======================================
@@ -128,8 +128,9 @@ public class IsoToTransactionMapper {
     // 🧩 Helpers comuns
     // ======================================
 
-    private TransactionCommand baseCommand(String merchantId, String amount, String card, TransactionType type, String mti, String mcc, String processingCode, String channelType, String currencyCode) {
+    private TransactionCommand baseCommand(String merchantId, String amount, String card, TransactionType type, String mti, String mcc, String processingCode, String channelType, String currencyCode, String transactionId) {
         return TransactionCommand.builder()
+                .transactionId(transactionId)
                 .tenantId("COREGATE-TENANT")
                 .merchantId(merchantId)
                 .amount(parseAmount(amount))

@@ -1,9 +1,9 @@
 syntax = "proto3";
 
-package br.com.coregate.infrastructure;
+package br.com.coregate.core.contracts;
 
 option java_multiple_files = true;
-option java_package = "br.com.coregate.proto.transaction";
+option java_package = "br.com.coregate.core.contracts";
 option java_outer_classname = "CoreGateContextProto";
 
 
@@ -11,7 +11,5 @@ option java_outer_classname = "CoreGateContextProto";
 // 🌐 Contexto compartilhado
 // =======================================================
 message CoreGateContext {
-    string traceId = 1;     // Correlation ID (UUID)
-    string channelId = 2;   // Canal lógico / conexão Netty
-    string tenantId = 3;    // Identificação multi-tenant
+    string channel = 1;   // Canal lógico / conexão Netty
 }

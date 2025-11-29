@@ -5,7 +5,8 @@ services:
   coregate-rabbitmq:
     image: rabbitmq:3.13-management
     container_name: coregate-rabbitmq
-    restart: always
+    hostname: coregate-rabbit
+    restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: coregate
       RABBITMQ_DEFAULT_PASS: coregate
@@ -16,6 +17,7 @@ services:
       - "5672:5672"     # conexão AMQP
       - "15672:15672"   # painel de controle web
     volumes:
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./data/rabbit:/var/lib/rabbitmq
     networks:
       - coregate-net
@@ -24,6 +26,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
 
   # ======================
   # 🗃️ Oracle Database
@@ -128,3 +131,6 @@ services:
 networks:
   coregate-net:
     driver: bridge
+
+volumes:
+  rabbitmq-data:

@@ -2,8 +2,9 @@ br\com\coregate\RabbitApplication.class
 br\com\coregate\rabbitmq\config\RabbitProduceConfig.class
 br\com\coregate\rabbitmq\config\RabbitMessagingConfig.class
 br\com\coregate\rabbitmq\config\RabbitAdminConfig.class
-br\com\coregate\rabbitmq\config\CustomRabbitListenerConfigurer.class
+br\com\coregate\rabbitmq\config\RabbitConfig.class
 br\com\coregate\rabbitmq\consumer\RabbitConsumer.class
 br\com\coregate\rabbitmq\config\RabbitDeclarablesConfig.class
+br\com\coregate\rabbitmq\config\CustomRabbitListenerConfig.class
 br\com\coregate\rabbitmq\config\RabbitProperties.class
 br\com\coregate\rabbitmq\factory\RabbitFactory.class

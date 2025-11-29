@@ -15,17 +15,17 @@ import java.lang.reflect.Method;
 import java.util.Map;
 
 @Configuration
-public class CustomRabbitListenerConfigurer implements RabbitListenerConfigurer {
+public class CustomRabbitListenerConfig implements RabbitListenerConfigurer {
 
     private final RabbitProperties rabbitProperties;
     private final ApplicationContext applicationContext;
     private final ConfigurableListableBeanFactory beanFactory;
     private final DefaultMessageHandlerMethodFactory messageHandlerMethodFactory;
 
-    public CustomRabbitListenerConfigurer(RabbitProperties rabbitProperties,
-                                          ApplicationContext applicationContext,
-                                          ConfigurableListableBeanFactory beanFactory,
-                                          DefaultMessageHandlerMethodFactory messageHandlerMethodFactory) {
+    public CustomRabbitListenerConfig(RabbitProperties rabbitProperties,
+                                      ApplicationContext applicationContext,
+                                      ConfigurableListableBeanFactory beanFactory,
+                                      DefaultMessageHandlerMethodFactory messageHandlerMethodFactory) {
         this.rabbitProperties = rabbitProperties;
         this.applicationContext = applicationContext;
         this.beanFactory = beanFactory;
@@ -37,6 +37,8 @@ public class CustomRabbitListenerConfigurer implements RabbitListenerConfigurer 
 
         // Registra o factory central no registrar (escolhe o factory que conhece o conversor)
         registrar.setMessageHandlerMethodFactory(this.messageHandlerMethodFactory);
+
+        registrar.setContainerFactoryBeanName("coregateListenerFactory");
 
         // Varredura e registro dos Consumers
         String[] beanNames = applicationContext.getBeanNamesForType(Object.class);

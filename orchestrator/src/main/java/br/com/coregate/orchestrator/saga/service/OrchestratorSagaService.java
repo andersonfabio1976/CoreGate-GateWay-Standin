@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class OrquestratorSagaService {
+public class OrchestratorSagaService {
 
     private final MeterRegistry registry;
     private final OperationalModeManager modeManager;

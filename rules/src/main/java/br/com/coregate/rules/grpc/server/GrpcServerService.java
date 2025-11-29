@@ -1,11 +1,11 @@
 package br.com.coregate.rules.grpc.server;
 
+import br.com.coregate.core.contracts.RulesProtoServiceGrpc;
+import br.com.coregate.core.contracts.RulesRequestProto;
+import br.com.coregate.core.contracts.RulesResponseProto;
 import br.com.coregate.core.contracts.dto.rules.RulesResponseDto;
 import br.com.coregate.core.contracts.dto.rules.StandinDecision;
 import br.com.coregate.core.contracts.mapper.RulesMapper;
-import br.com.coregate.proto.rules.RulesProtoServiceGrpc;
-import br.com.coregate.proto.rules.RulesRequestProto;
-import br.com.coregate.proto.rules.RulesResponseProto;
 import br.com.coregate.rules.auth.StandinRulesEngine;
 import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;

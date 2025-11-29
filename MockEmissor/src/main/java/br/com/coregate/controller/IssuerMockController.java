@@ -32,30 +32,36 @@ public class IssuerMockController {
             String authCode = generateAuthCode();
             log.info("✅ [MOCK-ISSUER] Transação aprovada [{}]", authCode);
             return AuthorizationResult.builder()
-                            .transactionId(transactionId)
+                            .transactionId(request.transactionId())
                             .responseCode("00")
-                            .timestamp(LocalDateTime.now())
+                            .authorizationCode(authCode)
+                            .date(LocalDateTime.now())
                             .status(TransactionStatus.AUTHORIZED)
+                            .mti(request.mti())
                             .build();
 
         } else if (chance < 0.8) {
             // ❌ Negado
             log.warn("❌ [MOCK-ISSUER] Transação negada [{}]", request.pan());
             return AuthorizationResult.builder()
-                    .transactionId(transactionId)
+                    .transactionId(request.transactionId())
                     .responseCode("05")
-                    .timestamp(LocalDateTime.now())
+                    .authorizationCode("0")
+                    .date(LocalDateTime.now())
                     .status(TransactionStatus.REJECTED)
+                    .mti(request.mti())
                     .build();
 
         } else {
             // 💥 Erro (timeout, servidor indisponível, etc.)
             log.error("💥 [MOCK-ISSUER] Falha ao processar transação [{}]", request.pan());
             return AuthorizationResult.builder()
-                    .transactionId(transactionId)
+                    .transactionId(request.transactionId())
                     .responseCode("91")
-                    .timestamp(LocalDateTime.now())
-                    .status(TransactionStatus.UNRECOGNIZED)
+                    .authorizationCode("0")
+                    .date(LocalDateTime.now())
+                    .mti(request.mti())
+                    .status(TransactionStatus.ERROR)
                     .build();
         }
     }

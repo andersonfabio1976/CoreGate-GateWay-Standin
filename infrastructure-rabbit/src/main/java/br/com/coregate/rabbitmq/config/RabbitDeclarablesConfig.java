@@ -90,8 +90,8 @@ public class RabbitDeclarablesConfig {
      * Template usado para publicação de mensagens.
      */
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+    public RabbitTemplate rabbitTemplate(ConnectionFactory coregateConnectionFactory) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(coregateConnectionFactory);
         rabbitTemplate.setMessageConverter(jsonMessageConverter());
         return rabbitTemplate;
     }

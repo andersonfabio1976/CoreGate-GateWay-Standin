@@ -22,7 +22,7 @@ mockpos:
 
   # 🔹 Quantidade inicial de terminais (POS) simulados
   pos:
-    count: 1
+    count: 350
 
   # 🔹 Quantidade de mensagens enviadas por cada POS
   messages:
@@ -31,12 +31,12 @@ mockpos:
 
   # 🔹 Intervalo entre os envios de mensagens por POS (em segundos)
   interval:
-    seconds: 50000
+    seconds: 8
 
   # 🔹 Timeout de resposta de socket (em milissegundos)
   socket:
     timeout:
-      ms: 3000
+      ms: 8000
 
   # ==========================================================
   # 🔥 MODO EVOLUTIVO (CRESCIMENTO AUTOMÁTICO DE CARGA)
@@ -47,14 +47,14 @@ mockpos:
   # ==========================================================
   evolution:
     # Ativa ou desativa o modo evolutivo
-    enabled: true
+    enabled: false
 
     # Quantos novos POS são adicionados a cada ciclo
-    increment: 10
+    increment: 30
 
     # Limite máximo de POS simultâneos
-    max: 1
+    max: 5000
 
     # Intervalo entre cada aumento de carga (em segundos)
     cycle:
-      seconds: 50
+      seconds: 120

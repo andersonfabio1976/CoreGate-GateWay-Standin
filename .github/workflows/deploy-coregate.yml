@@ -1,4 +1,4 @@
-name: CoreGate Manual Deploy
+name: Deploy CoreGate Modules
 
 on:
   workflow_dispatch:
@@ -16,76 +16,167 @@ on:
           - mockissuer
 
 jobs:
-  deploy:
+  deploy-selected:
     runs-on: ubuntu-latest
 
+    env:
+      ECR_INGRESS_REPO: ${{ secrets.ECR_INGRESS_REPO }}
+      ECR_CONTEXT_REPO: ${{ secrets.ECR_CONTEXT_REPO }}
+      ECR_ORCHESTRATOR_REPO: ${{ secrets.ECR_ORCHESTRATOR_REPO }}
+      ECR_RULES_REPO: ${{ secrets.ECR_RULES_REPO }}
+      ECR_FINALIZER_REPO: ${{ secrets.ECR_FINALIZER_REPO }}
+      ECR_MOCKISSUER_REPO: ${{ secrets.ECR_MOCKISSUER_REPO }}
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
 
-      # ---------------------
-      # MAPEAR O MODULO → ECR E DIRETORIO
-      # ---------------------
-      - name: Definir variáveis do módulo
-        id: vars
+      - uses: actions/checkout@v3
+
+      - name: Mostrar modulo selecionado
         run: |
-          case "${{ github.event.inputs.module }}" in
-            ingress)
-              echo "ECR_REPO=coregate-ingress" >> $GITHUB_ENV
-              echo "MODULE_DIR=ingress" >> $GITHUB_ENV
-              ;;
-            context)
-              echo "ECR_REPO=coregate-context" >> $GITHUB_ENV
-              echo "MODULE_DIR=context" >> $GITHUB_ENV
-              ;;
-            orchestrator)
-              echo "ECR_REPO=coregate-orchestrator" >> $GITHUB_ENV
-              echo "MODULE_DIR=orchestrator" >> $GITHUB_ENV
-              ;;
-            rules)
-              echo "ECR_REPO=coregate-rules" >> $GITHUB_ENV
-              echo "MODULE_DIR=rules" >> $GITHUB_ENV
-              ;;
-            finalizer)
-              echo "ECR_REPO=coregate-finalizer" >> $GITHUB_ENV
-              echo "MODULE_DIR=finalizer" >> $GITHUB_ENV
-              ;;
-            mockissuer)
-              echo "ECR_REPO=coregate-mockissuer" >> $GITHUB_ENV
-              echo "MODULE_DIR=mockissuer" >> $GITHUB_ENV
-              ;;
-          esac
+          echo Modulo selecionado:
+          echo "${{ github.event.inputs.module }}"
 
-      # ---------------------
-      # LOGIN NA AWS
-      # ---------------------
-      - name: Configurar credenciais AWS
-        uses: aws-actions/configure-aws-credentials@v2
+      # ===============================
+      # DEPLOY INGRESS (NÃO ALTEREI)
+      # ===============================
+      - name: Deploy Ingress
+        if: ${{ github.event.inputs.module == 'ingress' }}
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          host: ${{ secrets.HOST_INGRESS }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: ECR_INGRESS_REPO
+          script: |
+            echo "Deploy Ingress"
+            echo "IMAGE=$ECR_INGRESS_REPO"
+            sudo docker pull $ECR_INGRESS_REPO:latest
+            sudo docker stop ingress || true
+            sudo docker rm ingress || true
+            sudo docker run -d \
+              --name ingress \
+              --restart always \
+              --ulimit nofile=65535:65535 \
+              -p 8082:8080 \
+              $ECR_INGRESS_REPO:latest
 
-      - name: Login no Amazon ECR
-        id: ecr
-        uses: aws-actions/amazon-ecr-login@v2
+      # ===============================
+      # DEPLOY CONTEXT (CORRIGIDO)
+      # ===============================
+      - name: Deploy Context
+        if: ${{ github.event.inputs.module == 'context' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_CONTEXT }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: ECR_CONTEXT_REPO
+          ECR_CONTEXT_REPO: ${{ secrets.ECR_CONTEXT_REPO }}   # << FIX CRÍTICO AQUI
+          script: |
+            echo "Deploy Context"
+            echo "IMAGE=$ECR_CONTEXT_REPO"
+            sudo docker pull $ECR_CONTEXT_REPO:latest
+            sudo docker stop context || true
+            sudo docker rm context || true
+            sudo docker run -d \
+              --name context \
+              --restart always \
+              --ulimit nofile=65535:65535 \
+              -p 8083:8080 \
+              $ECR_CONTEXT_REPO:latest
 
-      # ---------------------
-      # BUILD DO DOCKERFILE DO MÓDULO
-      # ---------------------
-      - name: Build Docker Image
-        run: |
-          cd $MODULE_DIR
-          docker build -t $ECR_REPO:latest .
+      # ===============================
+      # DEPLOY ORCHESTRATOR (mantido)
+      # ===============================
+      - name: Deploy Orchestrator
+        if: ${{ github.event.inputs.module == 'orchestrator' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_ORCHESTRATOR }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: ECR_ORCHESTRATOR_REPO
+          script: |
+            echo "Deploy Orchestrator"
+            echo "IMAGE=$ECR_ORCHESTRATOR_REPO"
+            sudo docker pull $ECR_ORCHESTRATOR_REPO:latest
+            sudo docker stop orchestrator || true
+            sudo docker rm orchestrator || true
+            sudo docker run -d \
+              --name orchestrator \
+              --restart always \
+              --ulimit nofile=65535:65535 \
+              -p 8084:8080 \
+              $ECR_ORCHESTRATOR_REPO:latest
 
-      # ---------------------
-      # TAG E PUSH PARA O ECR
-      # ---------------------
-      - name: Tag Image
-        run: |
-          docker tag $ECR_REPO:latest \
-            ${{ steps.ecr.outputs.registry }}/$ECR_REPO:latest
+      # ===============================
+      # DEPLOY RULES (mantido)
+      # ===============================
+      - name: Deploy Rules
+        if: ${{ github.event.inputs.module == 'rules' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_RULES }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: ECR_RULES_REPO
+          script: |
+            echo "Deploy Rules"
+            echo "IMAGE=$ECR_RULES_REPO"
+            sudo docker pull $ECR_RULES_REPO:latest
+            sudo docker stop rules || true
+            sudo docker rm rules || true
+            sudo docker run -d \
+              --name rules \
+              --restart always \
+              --ulimit nofile=65535:65535 \
+              -p 8085:8080 \
+              $ECR_RULES_REPO:latest
 
-      - name: Push Image
-        run: |
-          docker push ${{ steps.ecr.outputs.registry }}/$ECR_REPO:latest
+      # ===============================
+      # DEPLOY FINALIZER (mantido)
+      # ===============================
+      - name: Deploy Finalizer
+        if: ${{ github.event.inputs.module == 'finalizer' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_FINALIZER }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: ECR_FINALIZER_REPO
+          script: |
+            echo "Deploy Finalizer"
+            echo "IMAGE=$ECR_FINALIZER_REPO"
+            sudo docker pull $ECR_FINALIZER_REPO:latest
+            sudo docker stop finalizer || true
+            sudo docker rm finalizer || true
+            sudo docker run -d \
+              --name finalizer \
+              --restart always \
+              --ulimit nofile=65535:65535 \
+              -p 8086:8080 \
+              $ECR_FINALIZER_REPO:latest
+
+      # ===============================
+      # DEPLOY MOCKISSUER (mantido)
+      # ===============================
+      - name: Deploy MockIssuer
+        if: ${{ github.event.inputs.module == 'mockissuer' }}
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST_MOCKISSUER }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: ECR_MOCKISSUER_REPO
+          script: |
+            echo "Deploy MockIssuer"
+            echo "IMAGE=$ECR_MOCKISSUER_REPO"
+            sudo docker pull $ECR_MOCKISSUER_REPO:latest
+            sudo docker stop mockissuer || true
+            sudo docker rm mockissuer || true
+            sudo docker run -d \
+              --name mockissuer \
+              --restart always \
+              --ulimit nofile=65535:65535 \
+              -p 8090:8080 \
+              $ECR_MOCKISSUER_REPO:latest

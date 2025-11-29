@@ -1,5 +1,6 @@
-C:\DevTools\Projects\core-gate\infrastructure-rabbit\src\main\java\br\com\coregate\rabbitmq\config\CustomRabbitListenerConfigurer.java
+C:\DevTools\Projects\core-gate\infrastructure-rabbit\src\main\java\br\com\coregate\rabbitmq\config\RabbitConfig.java
 C:\DevTools\Projects\core-gate\infrastructure-rabbit\src\main\java\br\com\coregate\rabbitmq\config\RabbitMessagingConfig.java
+C:\DevTools\Projects\core-gate\infrastructure-rabbit\src\main\java\br\com\coregate\rabbitmq\config\CustomRabbitListenerConfig.java
 C:\DevTools\Projects\core-gate\infrastructure-rabbit\src\main\java\br\com\coregate\rabbitmq\config\RabbitDeclarablesConfig.java
 C:\DevTools\Projects\core-gate\infrastructure-rabbit\src\main\java\br\com\coregate\rabbitmq\config\RabbitProduceConfig.java
 C:\DevTools\Projects\core-gate\infrastructure-rabbit\src\main\java\br\com\coregate\rabbitmq\factory\RabbitFactory.java

@@ -1,4 +1,4 @@
-package br.com.coregate.orchestrator.grpc.server;
+package br.com.coregate.context.grpc.server;
 
 import io.grpc.BindableService;
 import io.grpc.Server;

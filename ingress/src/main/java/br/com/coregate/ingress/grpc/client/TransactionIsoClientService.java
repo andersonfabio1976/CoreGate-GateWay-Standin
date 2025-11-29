@@ -1,9 +1,7 @@
-package br.com.coregate.context.grpc.client;
+package br.com.coregate.ingress.grpc.client;
 
-import br.com.coregate.proto.transaction.flow.RequestTransactionFlowProto;
-import br.com.coregate.proto.transaction.flow.ResponseTransactionFlowProto;
-import br.com.coregate.proto.transaction.flow.TransactionFlowServiceProtoGrpc;
-import io.grpc.ManagedChannel;
+import br.com.coregate.core.contracts.RequestTransactionIsoProto;
+import br.com.coregate.core.contracts.ResponseTransactionIsoProto;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import lombok.RequiredArgsConstructor;
@@ -15,33 +13,31 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TransactionFlowClientService {
+public class TransactionIsoClientService {
 
-    private final ManagedChannel orchestratorChannel;
+    private final TransactionIsoClientFactory transactionIsoClientFactory;
 
     @Value("${grpc.finalizer.deadline.ms:2500}")
     private long deadlineMs;
 
-    public ResponseTransactionFlowProto callGrpc(RequestTransactionFlowProto request) {
-        String txId = request.getTransactionCommand().getTransactionId();
-        TransactionFlowServiceProtoGrpc.TransactionFlowServiceProtoBlockingStub stub =
-                TransactionFlowServiceProtoGrpc.newBlockingStub(orchestratorChannel)
-                        .withDeadlineAfter(3000, TimeUnit.MILLISECONDS);
+    public ResponseTransactionIsoProto callGrpc(RequestTransactionIsoProto request, int port) {
+        String txId = request.getTransactionId();
+        var stub = transactionIsoClientFactory.stub(port);
 
         try {
             long start = System.nanoTime();
-            ResponseTransactionFlowProto response = stub.connect(request);
+            ResponseTransactionIsoProto response = stub.connect(request);
             long elapsed = System.nanoTime() - start;
 
-            log.info("gRPC Orchestrator OK, latency={} ms, transactionId={}",
+            log.info("gRPC Context OK, latency={} ms, transactionId={}",
                     TimeUnit.NANOSECONDS.toMillis(elapsed),
-                    request.getTransactionCommand().getTransactionId());
+                    txId);
             return response;
 
         } catch (StatusRuntimeException e) {
             Status.Code code = e.getStatus().getCode();
-            log.error("Erro gRPC ao chamar Orchestrator: code={} message={} transactionId={}",
-                    code, e.getStatus().getDescription(), request.getTransactionCommand().getTransactionId());
+            log.error("Erro gRPC ao chamar Context: code={} message={} transactionId={}",
+                    code, e.getStatus().getDescription(), txId);
             throw e;
         }
     }

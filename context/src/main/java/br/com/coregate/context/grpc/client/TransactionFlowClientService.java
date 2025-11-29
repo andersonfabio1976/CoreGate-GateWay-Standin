@@ -1,18 +1,45 @@
 package br.com.coregate.context.grpc.client;
 
-import io.grpc.ManagedChannel;
+import br.com.coregate.core.contracts.RequestTransactionFlowProto;
+import br.com.coregate.core.contracts.ResponseTransactionFlowProto;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import java.util.concurrent.TimeUnit;
 
+@Slf4j
 @Service
-public class GrpcOrchestratorClientService {
+@RequiredArgsConstructor
+public class TransactionFlowClientService {
 
-    private final TransactionFlow OrchestratorProtoServiceGrpc.OrchestratorProtoServiceBlockingStub stub;
+    private final TransactionFlowClientFactory transactionFlowClientFactory;
 
-    public GrpcOrchestratorClientService(ManagedChannel contextChannel) {
-        this.stub = OrchestratorProtoServiceGrpc.newBlockingStub(contextChannel);
-    }
+    @Value("${grpc.finalizer.deadline.ms:2500}")
+    private long deadlineMs;
 
-    public OrchestratorResponseProto callGrpc(OrchestratorRequestProto request) {
-        return stub.orchestrateTransaction(request);
+    public ResponseTransactionFlowProto callGrpc(RequestTransactionFlowProto request, int port) {
+        String txId = request.getTransactionCommand().getTransactionId();
+
+        var stub = transactionFlowClientFactory.stub(port);
+
+        try {
+            long start = System.nanoTime();
+            ResponseTransactionFlowProto response = stub.connect(request);
+            long elapsed = System.nanoTime() - start;
+
+            log.info("gRPC Orchestrator OK, latency={} ms, transactionId={}",
+                    TimeUnit.NANOSECONDS.toMillis(elapsed),
+                    request.getTransactionCommand().getTransactionId());
+            return response;
+
+        } catch (StatusRuntimeException e) {
+            Status.Code code = e.getStatus().getCode();
+            log.error("Erro gRPC ao chamar Orchestrator: code={} message={} transactionId={}",
+                    code, e.getStatus().getDescription(), request.getTransactionCommand().getTransactionId());
+            throw e;
+        }
     }
 }

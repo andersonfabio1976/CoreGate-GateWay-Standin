@@ -1,6 +1,8 @@
 package br.com.coregate.ingress.lifecycle.step;
 
-import br.com.coregate.core.contracts.dto.context.ContextRequestDto;
+import br.com.coregate.core.contracts.dto.transaction.TransactionIso;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -8,18 +10,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class InitChannelStep {
 
-    public ContextRequestDto execute(ContextRequestDto ctx) {
-        log.info("🚀 InitChannelStep - Inicializando canal Netty...");
-        try {
-            // Aqui pode ser feito handshake, validação, etc.
-            return ctx;
-        } catch (Exception e) {
-            log.error("❌ Erro ao inicializar canal: {}", e.getMessage(), e);
-            throw new RuntimeException("Falha no InitChannelStep", e);
-        }
+    public TransactionIso execute(TransactionIso ctx, Channel channel) {
+        //log.info("🚀 InitChannelStep - Initializing Netty Channel...");
+        return ctx;
     }
 
-    public ContextRequestDto rollback(ContextRequestDto ctx) {
+    public TransactionIso rollback(TransactionIso ctx, ChannelHandlerContext channel) {
         log.warn("↩️ Rollback InitChannelStep - limpando recursos do canal...");
         return ctx;
     }

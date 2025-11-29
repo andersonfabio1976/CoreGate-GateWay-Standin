@@ -1,11 +1,11 @@
 syntax = "proto3";
 
-package br.com.coregate.infrastructure;
+package br.com.coregate.core.contracts;
 
 import "common/coregate-context.proto";
 
 option java_multiple_files = true;
-option java_package = "br.com.coregate.proto.rules";
+option java_package = "br.com.coregate.core.contracts";
 option java_outer_classname = "RulesProto";
 
 

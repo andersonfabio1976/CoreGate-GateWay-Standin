@@ -5,7 +5,8 @@ import lombok.Data;
 
 @Builder
 @Data
-public class ResponseTransactionFlow {
-    private TransactionCommand transactionCommand;
-    private AuthorizationResult authorizationResult;
+public class ResponseTransactionIso {
+    private String transactionId;
+    private byte[] rawBytes;
+    private String hexString;
 }

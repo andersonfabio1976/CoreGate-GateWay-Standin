@@ -6,9 +6,11 @@ import br.com.coregate.domain.vo.TenantId;
 import jakarta.validation.constraints.*;
 import lombok.Builder;
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Builder
 public record TransactionCommand(
+        @NotBlank String transactionId,
         @NotBlank String tenantId,
         @NotBlank String merchantId,
         @NotNull BigDecimal amount,
@@ -20,5 +22,6 @@ public record TransactionCommand(
         @NotBlank Pan pan,
         @NotBlank String mti,
         @NotBlank String mcc,
-        @NotBlank ProcessingCodeType operation
+        @NotBlank ProcessingCodeType operation,
+        @NotBlank Instant creaatedAt
         ) {}

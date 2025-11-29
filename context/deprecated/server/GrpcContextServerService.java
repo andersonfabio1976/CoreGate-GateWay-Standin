@@ -1,11 +1,7 @@
 package br.com.coregate.context.grpc.server;
 
 import br.com.coregate.context.grpc.client.GrpcContextClientService;
-import br.com.coregate.core.contracts.dto.context.ContextResponseDto;
-import br.com.coregate.core.contracts.dto.orquestrator.OrquestratorRequestDto;
 import br.com.coregate.core.contracts.iso8583.parsing.ParserIso8583;
-import br.com.coregate.core.contracts.mapper.OrquestratorMapper;
-import br.com.coregate.core.contracts.mapper.ContextMapper;
 import br.com.coregate.proto.ingress.ContextProtoServiceGrpc;
 import br.com.coregate.proto.ingress.ContextRequestProto;
 import br.com.coregate.proto.ingress.ContextResponseProto;

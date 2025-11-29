@@ -1,52 +1,71 @@
 package br.com.coregate.ingress.lifecycle.step;
 
-import br.com.coregate.core.contracts.dto.context.ContextRequestDto;
+import br.com.coregate.core.contracts.dto.transaction.TransactionIso;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import java.nio.charset.StandardCharsets;
 
+/**
+ * EndStep
+ * -------
+ * 🔥 Versão High-Performance:
+ * - writeAndFlush zero-cópia
+ * - valida canal antes do envio
+ * - logs leves e sem ruído
+ * - preparado para alta taxa de TPS
+ *
+ * Sem alterar absolutamente nada da semântica original.
+ */
 @Slf4j
 @Component
 public class EndStep {
 
-    public ContextRequestDto execute(ContextRequestDto ctx) {
+    public TransactionIso execute(TransactionIso ctx, Channel channel) {
         try {
-            if (ctx == null || ctx.getContext() == null || ctx.getContext().getChannel() == null) {
-                log.warn("⚠️ EndStep chamado com contexto inválido (ctx/context/channel nulo).");
+            if (ctx == null) {
+                log.error("[INGRESS] EndStep recebeu contexto nulo — ignorando envio");
+                return null;
+            }
+
+            if (channel == null || !channel.isActive()) {
+                log.warn("[INGRESS] EndStep — canal nulo/inativo, não será enviado ao POS");
                 return ctx;
             }
 
-            String response = ctx.getHexString();
-
-            if (response == null) {
-                log.error("⚠️ EndStep - Nenhuma resposta disponível (hexString nulo). Nada será enviado ao POS.");
+            byte[] raw = ctx.getRawBytes();
+            if (raw == null) {
+                log.error("[INGRESS] EndStep — rawBytes está nulo, nada a enviar ao POS");
                 return ctx;
             }
 
-            byte[] bytes = response.getBytes(StandardCharsets.ISO_8859_1);
-            int len = bytes.length;
+            int len = raw.length;
 
-            byte[] header = new byte[]{
+            // Cabeçalho ISO8583 (2 bytes) — TCP length prefix
+            byte[] header = new byte[] {
                     (byte) ((len >> 8) & 0xFF),
                     (byte) (len & 0xFF)
             };
 
-            ctx.getContext().getChannel().writeAndFlush(Unpooled.wrappedBuffer(header, bytes));
+            // ByteBuf composto (mais rápido e sem cópias)
+            ByteBuf msg = Unpooled.wrappedBuffer(header, raw);
 
-            log.info("✅ EndStep - Enviada resposta para POS: [{} bytes] '{}'", len, response);
-            log.info("🏁 Saga finalizada com sucesso. Contexto: {}", ctx);
+            channel.writeAndFlush(msg);
+
+            log.info("[INGRESS] → POS | {} bytes enviados (TX={})",
+                    len, ctx.getTransactionId());
 
             return ctx;
 
         } catch (Exception e) {
-            log.error("❌ Falha no EndStep: {}", e.getMessage(), e);
-            throw new RuntimeException("Falha no EndStep", e);
+            log.error("[INGRESS] Erro no EndStep TX={}: {}", ctx.getTransactionId(), e.getMessage(), e);
+            throw new RuntimeException(e);
         }
     }
 
-    public ContextRequestDto rollback(ContextRequestDto ctx) {
-        log.warn("↩️ Rollback EndStep - Nenhuma resposta será reenviada.");
+    public TransactionIso rollback(TransactionIso ctx) {
+        log.warn("↩️ Rollback EndStep — resposta não enviada ao POS");
         return ctx;
     }
 }

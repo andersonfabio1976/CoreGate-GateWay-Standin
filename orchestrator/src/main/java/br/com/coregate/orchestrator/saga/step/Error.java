@@ -1,6 +1,6 @@
 package br.com.coregate.orchestrator.saga.step;
 
-import br.com.coregate.core.contracts.dto.orquestrator.OrquestratorSagaContext;
+import br.com.coregate.core.contracts.dto.orquestrator.OrchestratorSagaContext;
 import br.com.coregate.core.contracts.dto.rabbit.RabbitQueueType;
 import br.com.coregate.core.contracts.dto.transaction.AuthorizationResult;
 import br.com.coregate.domain.enums.TransactionStatus;
@@ -16,15 +16,15 @@ public class Error {
 
     private final RabbitFactory rabbitFactory;
 
-    public OrquestratorSagaContext execute(OrquestratorSagaContext tx, Exception e) {
-        log.error("❌ Saga failed for {}: {}", tx != null ? tx.getTransaction().getId() : "unknown", e.getMessage(), e);
+    public OrchestratorSagaContext execute(OrchestratorSagaContext tx, Exception e) {
+        log.error("❌ Saga failed for {}: {}", tx != null ? tx.getTransactionCommand() : "unknown", e.getMessage(), e);
         if (tx != null) {
             var responseCode = AuthorizationResult.builder()
                     .responseCode("99")
                     .authorizationCode(tx.getAuthorizationResult().authorizationCode())
                     .mti(tx.getAuthorizationResult().mti())
                     .status(TransactionStatus.ERROR)
-                    .timestamp(tx.getAuthorizationResult().timestamp())
+                    .date(tx.getAuthorizationResult().date())
                     .transactionId(tx.getAuthorizationResult().transactionId())
                     .build();
             tx.setAuthorizationResult(responseCode);

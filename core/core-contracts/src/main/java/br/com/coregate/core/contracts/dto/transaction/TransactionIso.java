@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Builder
 @Data
-public class TransactionIso8583 {
+public class TransactionIso {
     private String transactionId;
     private byte[] rawBytes;
     private String hexString;

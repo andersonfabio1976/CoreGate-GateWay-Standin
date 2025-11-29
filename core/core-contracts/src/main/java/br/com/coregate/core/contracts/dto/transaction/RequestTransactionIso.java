@@ -5,6 +5,8 @@ import lombok.Data;
 
 @Builder
 @Data
-public class RequestTransactionFlow {
-    private TransactionCommand transactionCommand;
+public class RequestTransactionIso {
+    private String transactionId;
+    private byte[] rawBytes;
+    private String hexString;
 }

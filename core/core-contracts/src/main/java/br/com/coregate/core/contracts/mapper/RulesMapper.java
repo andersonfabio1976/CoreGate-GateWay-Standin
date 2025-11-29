@@ -1,9 +1,9 @@
 package br.com.coregate.core.contracts.mapper;
 
+import br.com.coregate.core.contracts.RulesRequestProto;
+import br.com.coregate.core.contracts.RulesResponseProto;
 import br.com.coregate.core.contracts.dto.rules.RulesRequestDto;
 import br.com.coregate.core.contracts.dto.rules.RulesResponseDto;
-import br.com.coregate.proto.rules.RulesRequestProto;
-import br.com.coregate.proto.rules.RulesResponseProto;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 

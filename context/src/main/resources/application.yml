@@ -5,6 +5,9 @@ grpc:
   server:
     host: localhost
     port: 8090
+  orchestrator:
+    host: localhost
+    port: 8091
 
 spring:
   rabbitmq:
@@ -18,7 +21,8 @@ spring:
   application:
     name: mock-issuer
   config:
-    import: optional:classpath:/application-infrastructure.yml
+    import:
+      - optional:classpath:/application-rabbit.yml
 
 resilience4j:
   retry:

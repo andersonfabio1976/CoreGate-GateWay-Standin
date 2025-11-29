@@ -1,12 +1,11 @@
 package br.com.coregate.core.contracts.iso8583.parsing;
 
-import br.com.coregate.core.contracts.dto.transaction.AuthorizationResult;
+import br.com.coregate.core.contracts.dto.transaction.ResponseTransactionFlow;
 import br.com.coregate.core.contracts.dto.transaction.TransactionCommand;
 import br.com.coregate.core.contracts.iso8583.mapper.IsoToTransactionMapper;
 import br.com.coregate.core.contracts.iso8583.model.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
 import java.nio.charset.StandardCharsets;
 
 @Slf4j
@@ -22,7 +21,7 @@ public class ParserIso8583 {
     // ===============================
     // 🔽 Decode: ISO → Transaction
     // ===============================
-    public TransactionCommand decode(byte[] rawBytes) {
+    public TransactionCommand decode(byte[] rawBytes, String transactionId) {
         log.info("🧩 DecodeIsoStep - Decodificando mensagem ISO8583 {}", rawBytes);
 
         try {
@@ -34,12 +33,12 @@ public class ParserIso8583 {
             log.info("🧠 MTI identificado: {}", mti);
 
             return switch (mti) {
-                case "0200" -> isoMapper.fromFinancialRequest(FinancialRequestIsoModelMapper.decode(isoMessage));
-                case "0210" -> isoMapper.fromFinancialResponse(FinancialResponseIsoModelMapper.decode(isoMessage));
-                case "0400" -> isoMapper.fromReversalRequest(ReversalRequestIsoModelMapper.decode(isoMessage));
-                case "0410" -> isoMapper.fromReversalResponse(ReversalResponseIsoModelMapper.decode(isoMessage));
-                case "0100" -> isoMapper.fromAuthorizationRequest(AuthorizationRequestIsoModelMapper.decode(isoMessage));
-                case "0110" -> isoMapper.fromAuthorizationResponse(AuthorizationResponseIsoModelMapper.decode(isoMessage));
+                case "0200" -> isoMapper.fromFinancialRequest(FinancialRequestIsoModelMapper.decode(isoMessage), transactionId);
+                case "0210" -> isoMapper.fromFinancialResponse(FinancialResponseIsoModelMapper.decode(isoMessage), transactionId);
+                case "0400" -> isoMapper.fromReversalRequest(ReversalRequestIsoModelMapper.decode(isoMessage), transactionId);
+                case "0410" -> isoMapper.fromReversalResponse(ReversalResponseIsoModelMapper.decode(isoMessage), transactionId);
+                case "0100" -> isoMapper.fromAuthorizationRequest(AuthorizationRequestIsoModelMapper.decode(isoMessage), transactionId);
+                case "0110" -> isoMapper.fromAuthorizationResponse(AuthorizationResponseIsoModelMapper.decode(isoMessage), transactionId);
                 default -> throw new IllegalArgumentException("MTI não suportado: " + mti);
             };
 
@@ -52,8 +51,11 @@ public class ParserIso8583 {
     // ===============================
     // 🔼 Encode: Transaction → ISO
     // ===============================
-    public byte[] encode(TransactionCommand command, AuthorizationResult result) {
-        log.info("🧩 EncodeIsoStep - Regerando ISO8583 para MTI {}", result.mti());
+    public byte[] encode(ResponseTransactionFlow tx) {
+        log.info("🧩 EncodeIsoStep - Regerando ISO8583 para MTI {}", tx.getTransactionCommand().mti());
+
+        var command = tx.getTransactionCommand();
+        var result = tx.getAuthorizationResult();
 
         try {
             String isoMessage = switch (result.mti()) {

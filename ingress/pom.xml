@@ -16,12 +16,20 @@
     <name>CoreGate - Ingress</name>
     <description>Módulo de entrada (Ingress) - Recepção de mensagens ISO8583 via Socket Netty</description>
 
-
     <dependencies>
         <dependency>
             <groupId>br.com.coregate</groupId>
             <artifactId>core-contracts</artifactId>
             <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>1.17.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>io.github.resilience4j</groupId>

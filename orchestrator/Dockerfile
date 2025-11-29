@@ -1,8 +1,11 @@
 FROM eclipse-temurin:21-jre-alpine
 
+ARG JAR_FILE
+FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+COPY target/${JAR_FILE} app.jar
+CMD ["java", "-jar", "app.jar"]
 
-COPY target/orchestrator-1.0.0-SNAPSHOT.jar app.jar
 
 ENV JAVA_OPTS="-Xms256m -Xmx512m"
 ENV CONTEXT_HOST="localhost"

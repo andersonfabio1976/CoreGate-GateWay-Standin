@@ -1,6 +1,7 @@
 package br.com.coregate.ingress.netty;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -14,8 +15,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * 🧩 Responsável por subir o servidor TCP do Ingress e
- * gerenciar o ciclo de vida da conexão com POS/adquirente.
+ * NettyServer (Optimized)
+ * -----------------------
+ * 🔥 Alta performance para POS real e adquirentes:
+ * - TCP_NODELAY
+ * - SO_REUSEADDR
+ * - backlog aumentado
+ * - write watermark para evitar congestionamento
+ * - EventLoop dimensionado automaticamente
+ *
+ * Sem qualquer mudança na lógica do Ingress.
  */
 @Slf4j
 @Component
@@ -24,75 +33,95 @@ public class NettyServer {
     @Value("${coregate.ingress.port:8583}")
     private int port;
 
+    // ========================================================================
+    // EventLoopGroup tuning: boss=1, workers=CPU*2  → recomendado para IO-bound
+    // ========================================================================
     private final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private ChannelFuture serverChannel;
+    private final EventLoopGroup workerGroup =
+            new NioEventLoopGroup(Math.max(4, Runtime.getRuntime().availableProcessors() * 2));
 
+    private ChannelFuture serverChannel;
     private final Iso8583Handler iso8583Handler;
 
     public NettyServer(Iso8583Handler iso8583Handler) {
         this.iso8583Handler = iso8583Handler;
     }
 
-    /**
-     * 🚀 Inicializa o servidor na subida do Spring Boot.
-     */
     @PostConstruct
     public void start() throws InterruptedException {
-        log.info("🟢 Iniciando servidor Netty na porta {}...", port);
+        log.info("🟢 Iniciando servidor Netty otimizado na porta {}...", port);
 
         try {
             ServerBootstrap bootstrap = new ServerBootstrap();
 
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
+
+                    // ========================================================
+                    // Global Tuning de baixo nível TCP
+                    // ========================================================
+                    .option(ChannelOption.SO_REUSEADDR, true)
+                    .option(ChannelOption.SO_BACKLOG, 512)
+                    .option(ChannelOption.TCP_NODELAY, true)
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+
+                    // ========================================================
+                    // WriteBuffer otimizado (evita travamento)
+                    // ========================================================
+                    .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK,
+                            new WriteBufferWaterMark(32 * 1024, 64 * 1024)) // low/high
+
+                    // ========================================================
+                    // Alocador rápido (PooledByteBuf) → menor GC
+                    // ========================================================
+                    .childOption(ChannelOption.ALLOCATOR, ByteBufAllocator.DEFAULT)
+
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             ChannelPipeline p = ch.pipeline();
 
-                            // 1️⃣ Frame decoder (2 bytes = tamanho da mensagem)
+                            // 1️⃣ Frame decoder
                             p.addLast(new LengthFieldBasedFrameDecoder(
-                                    4096, // tamanho máximo da mensagem ISO
-                                    0,    // offset do campo de tamanho
-                                    2,    // tamanho do campo (2 bytes)
-                                    0,    // ajuste
-                                    2     // remove os 2 bytes do tamanho no payload
+                                    4096,
+                                    0,
+                                    2,
+                                    0,
+                                    2
                             ));
 
-                            // 2️⃣ Byte decoder → converte ByteBuf para byte[]
+                            // 2️⃣ Convert ByteBuf → byte[]
                             p.addLast(new ByteArrayDecoder());
 
-                            // 3️⃣ Handler da sua SAGA ISO8583
+                            // 3️⃣ Seu handler ISO8583
                             p.addLast(iso8583Handler);
                         }
-                    })
-                    .option(ChannelOption.SO_BACKLOG, 128)
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+                    });
 
-            // ⏳ Bind na porta e bloqueia até subir
+            // ========================================================
+            // Bind sem bloqueio do EventLoop (mas espera subir)
+            // ========================================================
             serverChannel = bootstrap.bind(port).sync();
 
-            log.info("✅ Servidor Netty iniciado e escutando na porta {}", port);
+            log.info("✅ Servidor Netty otimizado iniciado na porta {}", port);
 
         } catch (Exception e) {
-            log.error("❌ Erro ao iniciar servidor Netty", e);
+            log.error("❌ Falha ao iniciar Netty Ingress", e);
             throw e;
         }
     }
 
-    /**
-     * 🛑 Finaliza todas as conexões graciosamente.
-     */
     @PreDestroy
     public void stop() {
-        log.info("🛑 Encerrando servidor Netty...");
+        log.info("🛑 Encerrando Netty...");
         try {
-            if (serverChannel != null) serverChannel.channel().close();
+            if (serverChannel != null) {
+                serverChannel.channel().close();
+            }
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-        log.info("✅ Servidor Netty finalizado com sucesso");
+        log.info("✅ Netty finalizado com sucesso.");
     }
 }

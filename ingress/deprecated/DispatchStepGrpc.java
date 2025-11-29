@@ -1,8 +1,7 @@
 package br.com.coregate.ingress.lifecycle.step;
 
 import br.com.coregate.core.contracts.dto.context.ContextRequestDto;
-import br.com.coregate.core.contracts.dto.context.ContextResponseDto;
-import br.com.coregate.core.contracts.mapper.ContextMapper;
+import br.com.coregate.ingress.grpc.client.GrpcIngressClientService;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import io.netty.channel.ChannelHandlerContext;
