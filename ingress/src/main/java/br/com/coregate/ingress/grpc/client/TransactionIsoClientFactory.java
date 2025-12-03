@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransactionIsoClientFactory {
 
-    public TransactionIsoServiceProtoGrpc.TransactionIsoServiceProtoBlockingStub stub(int serverPort) {
+    public TransactionIsoServiceProtoGrpc.TransactionIsoServiceProtoBlockingStub stub(String host, int serverPort) {
         ManagedChannel channel = ManagedChannelBuilder
-                .forAddress("localhost", serverPort)
+                .forAddress(host, serverPort)
                 .usePlaintext()
                 .build();
         return TransactionIsoServiceProtoGrpc.newBlockingStub(channel);

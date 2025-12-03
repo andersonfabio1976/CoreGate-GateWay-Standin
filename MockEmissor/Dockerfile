@@ -1,10 +1,9 @@
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21-jre
 
-ARG JAR_FILE
-FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
+
+ARG JAR_FILE=MockEmissor-1.0.0-SNAPSHOT.jar
 COPY target/${JAR_FILE} app.jar
-CMD ["java", "-jar", "app.jar"]
 
 
 ENV JAVA_OPTS="-Xms256m -Xmx512m"
@@ -13,4 +12,4 @@ ENV CONTEXT_PORT=8090
 
 EXPOSE 1110
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["java", "-Xms256m", "-Xmx512m", "-jar", "app.jar"]

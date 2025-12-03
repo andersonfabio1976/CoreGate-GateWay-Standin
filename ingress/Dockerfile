@@ -2,8 +2,8 @@ FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
-COPY target/*.jar app.jar
-
+ARG JAR_FILE=ingress-1.0.0-SNAPSHOT.jar
+COPY target/${JAR_FILE} app.jar
 
 ENV JAVA_OPTS="-Xms256m -Xmx512m"
 ENV CONTEXT_HOST="localhost"

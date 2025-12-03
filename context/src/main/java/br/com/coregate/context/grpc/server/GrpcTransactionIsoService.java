@@ -30,8 +30,8 @@ public class GrpcTransactionIsoService
     private final ParserIso8583 parserIso8583;
     private final GrpcServerComponent grpcServer;
 
-    @Value("${grpc.server.port}")
-    private int grpcPort;
+    @Value("${grpc.orchestrator.host}")
+    private String grpcHost;
 
     @Value("${grpc.orchestrator.port}")
     private int grpcOrchestratorPort;
@@ -39,7 +39,7 @@ public class GrpcTransactionIsoService
     @PostConstruct
     public void init() {
         log.info("🧩 Parser decode and encode iso8583 to dto and consume orquestrator...");
-        grpcServer.start(this, grpcPort);
+        grpcServer.start(this, grpcOrchestratorPort);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class GrpcTransactionIsoService
             // 2) GRPC ORCHESTRATOR
             // ------------------------------
             long tGrpcStart = System.currentTimeMillis();
-            var responseFlowProto = transactionFlowClientService.callGrpc(requestFlowProto, grpcOrchestratorPort);
+            var responseFlowProto = transactionFlowClientService.callGrpc(requestFlowProto, grpcHost, grpcOrchestratorPort);
             long tGrpc = System.currentTimeMillis() - tGrpcStart;
 
             var responseFlow = transactionFlowMapper.toDto(responseFlowProto);

@@ -7,12 +7,10 @@ import br.com.coregate.ingress.grpc.client.TransactionIsoClientService;
 import br.com.coregate.ingress.session.ChannelRegistry;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 import java.util.UUID;
 
 /**
@@ -39,6 +37,9 @@ public class DispatchStep {
     @Value("${grpc.context.port}")
     private int grpcContextPort;
 
+    @Value("$grpc.context.host}")
+    private String grpcContextHost;
+
 
     public TransactionIso execute(TransactionIso ctx, Channel channel) {
         try {
@@ -62,7 +63,7 @@ public class DispatchStep {
                     .build();
             var requestTransactionIsoProto = transactionIsoMapper.toProto(requestTransactionIso);
             var responseTransactionIsoProto =
-                    transactionIsoClientService.callGrpc(requestTransactionIsoProto, grpcContextPort);
+                    transactionIsoClientService.callGrpc(requestTransactionIsoProto, grpcContextHost, grpcContextPort);
             var responseTransactionIso = transactionIsoMapper.toDto(responseTransactionIsoProto);
 
             if (responseTransactionIso == null) {

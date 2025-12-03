@@ -1,71 +1,202 @@
-# ⚡ CoreGate — Arcabouço (Skeleton)
+# CoreGate — Gateway / Stand-in Architecture
 
-> 💳 Gateway de Pagamentos com Módulo Stand-In  
-> 🧠 Arquitetura Hexagonal | 🧩 CQRS | 🛰️ SAGA | 🔗 gRPC + ISO8583  
-> ☁️ Alta Disponibilidade | 🔒 Resiliência Total | 📊 Observabilidade Integrada
+CoreGate é uma implementação completa de um **gateway transacional distribuído**, projetado para operar com **alto throughput, baixa latência e forte separação de responsabilidades**.
 
----
-
-<p align="center">
-  <img src="https://img.shields.io/badge/Java-21-red?logo=java&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Spring%20Boot-3.x-green?logo=springboot&logoColor=white"/>
-  <img src="https://img.shields.io/badge/Architecture-Hexagonal-blueviolet"/>
-  <img src="https://img.shields.io/badge/Database-Oracle-blue?logo=oracle"/>
-  <img src="https://img.shields.io/badge/Cache-Redis-red?logo=redis"/>
-  <img src="https://img.shields.io/badge/Messaging-RabbitMQ-orange?logo=rabbitmq"/>
-  <img src="https://img.shields.io/badge/Service%20Discovery-Consul-lightblue?logo=consul"/>
-  <img src="https://img.shields.io/badge/Resilience-Resilience4j-yellow?logo=spring"/>
-  <img src="https://img.shields.io/badge/Observability-Grafana%20%7C%20Kibana-orange?logo=grafana"/>
-  <img src="https://img.shields.io/badge/Coverage-100%25-brightgreen?logo=sonarcloud"/>
-  <img src="https://img.shields.io/badge/Container-Docker-blue?logo=docker"/>
-  <img src="https://img.shields.io/badge/Orchestration-Kubernetes-blue?logo=kubernetes"/>
-</p>
+O projeto tem como foco **arquitetura de sistemas críticos**, explorando padrões consolidados de engenharia de software para processamento síncrono e assíncrono, com ênfase em **resiliência, orquestração explícita e observabilidade**.
 
 ---
 
-## 🚀 Visão Geral
+## 🧭 Visão Arquitetural
 
-O **CoreGate** é um *gateway de pagamentos com módulo Stand-In* e **arquitetura hexagonal multimódulo**.  
-Foi concebido para operar tanto como **fintech parceira de bancos** quanto como **plataforma white label para lojistas**.
+A arquitetura do CoreGate segue um modelo **modular, orientado a eventos e orquestrado**, no qual cada etapa do fluxo transacional é explícita, isolada e observável.
 
-O foco principal é oferecer **resiliência**, **escalabilidade** e **observabilidade total**, com pilares sólidos de **Clean Architecture**, **DDD**, **SOLID** e **Design Patterns**.
+![CoreGate Architecture](docs/images/architecture.png)
 
----
+### Princípios adotados
 
-## 🧭 Formas de Atuação
-
-### 🏦 Parceiro de Banco
-O CoreGate atua como **fintech integradora**, processando transações ISO8583 em tempo real e se comunicando diretamente com adquirentes e emissores.
-
-### 🏷️ White Label para Lojistas
-Permite que grandes varejistas utilizem o motor de pagamento CoreGate sob sua própria marca, com regras, conciliação e relatórios dedicados.
-
----
-
-## ⚙️ Modos de Operação
-
-| 🧭 Modo | Descrição | Cenário Ideal |
-|:--------|:-----------|:---------------|
-| **Gateway** | Processamento online via ISO8583/gRPC, roteando para adquirentes/emissores. | Operação normal em tempo real. |
-| **Stand-In** | Fallback inteligente que autoriza localmente via cache + regras + limites. | Falhas temporárias do emissor/adquirente. |
+- Arquitetura **Hexagonal (Ports & Adapters)**
+- **Saga Orchestration** explícita
+- **CQRS** (separação de leitura e escrita)
+- Programação **orientada a eventos**
+- Isolamento entre entrada, decisão, execução e finalização
+- Suporte a **stand-in mode** para continuidade operacional
+- Contratos claros entre módulos
 
 ---
 
-## 💡 Fluxo de Autorização e Stand-In
+## 🧩 Módulos
 
-O diagrama a seguir detalha o ciclo de vida completo de uma transação no **CoreGate**, cobrindo o caminho **online (gateway)** e o **modo fallback (stand-in)** em caso de indisponibilidade do emissor.
+O sistema é organizado em módulos independentes, cada um com responsabilidade única:
 
-```mermaid
-flowchart LR
-  A[Cliente / POS / App] -->|ISO8583 / gRPC| B[Ingress]
-  B --> C[Context ISO8583]
-  C --> D[Orquestrator]
-  D --> E[Rules]
-  E --> F[Finalizer]
-  D --> G[Advice]
-  D --> H[Data]
-  H -->|Oracle| O[Oracle DB]
-  H -->|Redis| R[Redis Cache]
-  O --> I[Banco / Stand-In]
-  R --> I
-  I --> J[Alta Disponibilidade]
+### `mock-pos`
+Simulador concorrente de POS:
+- geração de carga
+- múltiplos terminais ativos
+- controle de taxa e concorrência
+- simulação realista de tráfego transacional
+
+---
+
+### `ingress`
+Camada de entrada do sistema:
+- conexão **Socket NIO**
+- protocolo **ISO 8583**
+- desacoplamento entre transporte e domínio
+- gateway adapter via SPI
+
+---
+
+### `context`
+Camada de domínio:
+- encode/decode do protocolo
+- **ISO 8583 Processor**
+- geração de código em tempo de compilação via **JSR-269**
+- abordagem semelhante ao Lombok para mapeamento de campos
+- domínio rico e independente de infraestrutura
+
+---
+
+### `orchestrator`
+Coração do fluxo transacional:
+- **Saga / Workflow Engine**
+- etapas explícitas:
+    - fetch-data
+    - register
+    - validate
+    - process
+    - notify
+    - metrics
+- controle de idempotência
+- isolamento de falhas por etapa
+
+---
+
+### `rules`
+Camada de decisão:
+- motor de regras baseado em **Evrete**
+- regras declarativas e versionáveis
+- decisões de autorização e antifraude
+- suporte a **stand-in decision**
+- configuração dinâmica (Redis / JSON)
+
+---
+
+### `advice`
+Pipeline de execução síncrona:
+- processamento determinístico
+- validações encadeadas
+- separação clara entre fluxo e decisão
+
+Fluxo funcional:
+
+START → FETCH → VALIDATE → REQUEST → SEND → RECEIVE → END
+
+yaml
+Copiar código
+
+---
+
+### `finalizer`
+Camada de encerramento:
+- health check
+- mode manager (gateway ↔ stand-in)
+- confirmação e fechamento transacional
+- controle de estado final
+
+---
+
+### `data`
+Persistência e estado:
+- Oracle / Redis
+- versionamento com Flyway
+- controle de estado transacional
+- leitura e escrita desacopladas do fluxo
+
+---
+
+### `mock-issuer`
+Simulador de emissor:
+- aprovação / negação determinística
+- latência controlada
+- utilizado para testes de fluxo e carga end-to-end
+
+---
+
+## 🔍 Observabilidade & Resiliência
+
+Observabilidade é tratada como **requisito de primeira classe**:
+
+- Prometheus
+- Grafana
+- Kibana
+- Elastic Stack (ELK)
+- Jaeger / OpenTelemetry
+
+Resiliência:
+- **Resilience4j** (circuit breaker)
+- timeouts explícitos
+- isolamento entre chamadas internas
+- fallback controlado para stand-in
+
+---
+
+## 🔗 Comunicação Interna
+
+- **gRPC** para comunicação entre módulos internos
+- **RabbitMQ** para downstream assíncrono
+- separação clara entre:
+    - chamadas críticas síncronas
+    - processamento eventual assíncrono
+
+---
+
+## ⚙️ Protocolo
+
+- Implementação completa do **ISO 8583**
+- decoder genérico
+- processamento binário eficiente
+- geração de código via **JSR-269**
+- eliminação de reflexão em runtime
+- foco em alto desempenho e baixo overhead
+
+---
+
+## 🚀 Desempenho
+
+O fluxo foi testado **end-to-end**, do `mock-pos` até o `finalizer`, com aprovação retornada pelo `mock-issuer`.
+
+### Evidência de carga
+
+![TPS Evidence](docs/images/tps-evidence.png)
+
+**Resultados observados:**
+
+- TPS médio estável acima de 400
+- **TPS máximo observado: 494**
+- Latência média de aprovação: ~269 ms
+- ~350 POS ativos simultaneamente
+- Taxa de erro inferior a 1%
+
+---
+
+## 🧠 Princípios de Design
+
+- Clareza acima de abstração excessiva
+- Fluxos explícitos são preferíveis a “magia”
+- Falhas são esperadas e tratadas
+- Observabilidade não é opcional
+- Contratos são mais importantes que implementações
+
+---
+
+## 📌 Considerações Finais
+
+CoreGate materializa conceitos arquiteturais aplicáveis a sistemas distribuídos de missão crítica, com foco em:
+
+- coordenação
+- consistência
+- resiliência
+- desempenho
+- auditabilidade
+
+O projeto privilegia **arquitetura e engenharia** acima de frameworks ou tendências.

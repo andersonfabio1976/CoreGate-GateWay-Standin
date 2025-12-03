@@ -30,6 +30,9 @@ public class Process {
     @Value("${grpc.finalizer.port}")
     private int grpcFinalizerPort;
 
+    @Value("${grpc.finalizer.host")
+    private String grpcFinalizerHost;
+
     public OrchestratorSagaContext execute(OrchestratorSagaContext tx) {
 
         var result = AuthorizationResult.builder().build();
@@ -52,7 +55,7 @@ public class Process {
                                     .build();
             var requestProto = transactionFlowMapper.toProto(requestDto);
             log.info("REQUEST TO FINALIZER {}",requestDto);
-            var responseProto = grpcTransactionFlowClientService.callGrpc(requestProto, grpcFinalizerPort);
+            var responseProto = grpcTransactionFlowClientService.callGrpc(requestProto, grpcFinalizerHost,  grpcFinalizerPort);
             responseDto = transactionFlowMapper.toDto(responseProto);
 
         }

@@ -17,12 +17,12 @@ spring:
 
 mockpos:
   # 🔹 Host e porta do servidor Ingress (Netty)
-  host: localhost
+  host: 98.95.251.18
   port: 8583
 
   # 🔹 Quantidade inicial de terminais (POS) simulados
   pos:
-    count: 350
+    count: 300
 
   # 🔹 Quantidade de mensagens enviadas por cada POS
   messages:
@@ -50,11 +50,11 @@ mockpos:
     enabled: false
 
     # Quantos novos POS são adicionados a cada ciclo
-    increment: 30
+    increment: 10
 
     # Limite máximo de POS simultâneos
-    max: 5000
+    max: 350
 
     # Intervalo entre cada aumento de carga (em segundos)
     cycle:
-      seconds: 120
+      seconds: 15

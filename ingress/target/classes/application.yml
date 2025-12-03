@@ -11,9 +11,6 @@ coregate:
     port: 8583
 
 grpc:
-  server:
-    host: localhost
-    port: 8090
   context:
-    host: localhost
+    host: 98.83.72.102
     port: 8090

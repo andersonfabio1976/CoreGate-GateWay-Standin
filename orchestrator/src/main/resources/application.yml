@@ -3,13 +3,14 @@ server:
 
 spring:
   application:
-    name: mock-issuer
+    name: coregate-orchestrator
   config:
     import:
-      - classpath:management.yml
-      - classpath:metrics.yml
-      - classpath:queues-rabbit.yml
-      - classpath:application-rabbit.yml
+      - optional:classpath:management.yml
+      - optional:classpath:metrics.yml
+      - optional:classpath:queues-rabbit.yml
+      - optional:classpath:application-redis.yml
+      - optional:classpath:application-rabbit.yml
 
 grpc:
   server:
@@ -17,7 +18,7 @@ grpc:
     threads: 64
 
   finalizer:
-    host: localhost
+    host: 52.73.51.226
     port: 8092
   rules:
     host: localhost

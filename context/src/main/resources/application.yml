@@ -2,16 +2,13 @@ server:
   port: 8083
 
 grpc:
-  server:
-    host: localhost
-    port: 8090
   orchestrator:
-    host: localhost
+    host: 54.86.163.69
     port: 8091
 
 spring:
   rabbitmq:
-    host: localhost
+    host: 54.225.174.32
     port: 5672
     username: coregate
     password: coregate
@@ -19,7 +16,7 @@ spring:
       simple:
         auto-startup: false
   application:
-    name: mock-issuer
+    name: coregate-context
   config:
     import:
       - optional:classpath:/application-rabbit.yml

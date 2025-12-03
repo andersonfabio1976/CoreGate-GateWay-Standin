@@ -20,10 +20,10 @@ public class TransactionFlowClientService {
     @Value("${grpc.finalizer.deadline.ms:2500}")
     private long deadlineMs;
 
-    public ResponseTransactionFlowProto callGrpc(RequestTransactionFlowProto request, int port) {
+    public ResponseTransactionFlowProto callGrpc(RequestTransactionFlowProto request, String host,  int port) {
         String txId = request.getTransactionCommand().getTransactionId();
 
-        var stub = transactionFlowClientFactory.stub(port);
+        var stub = transactionFlowClientFactory.stub(host, port);
 
         try {
             long start = System.nanoTime();

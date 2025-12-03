@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransactionFlowClientFactory {
 
-    public TransactionFlowServiceProtoGrpc.TransactionFlowServiceProtoBlockingStub stub(int serverPort) {
+    public TransactionFlowServiceProtoGrpc.TransactionFlowServiceProtoBlockingStub stub(String host, int serverPort) {
         ManagedChannel channel = ManagedChannelBuilder
-                .forAddress("localhost", serverPort)
+                .forAddress(host, serverPort)
                 .usePlaintext()
                 .build();
         return TransactionFlowServiceProtoGrpc.newBlockingStub(channel);

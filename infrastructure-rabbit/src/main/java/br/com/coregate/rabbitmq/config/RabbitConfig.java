@@ -6,25 +6,41 @@ import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitConfig {
 
+    // 🔥 Agora vem do application.yml (AWS, dev, prod, docker…)
+    @Value("${spring.rabbitmq.host}")
+    private String rabbitHost;
+
+    @Value("${spring.rabbitmq.port}")
+    private int rabbitPort;
+
+    @Value("${spring.rabbitmq.username}")
+    private String rabbitUser;
+
+    @Value("${spring.rabbitmq.password}")
+    private String rabbitPass;
+
     /**
      * ConnectionFactory com tuning de performance.
+     * Agora usa propriedades externas.
      */
     @Bean
     public ConnectionFactory coregateConnectionFactory() {
-        CachingConnectionFactory cf = new CachingConnectionFactory("localhost", 5672);
-        cf.setUsername("coregate");
-        cf.setPassword("coregate");
+
+        CachingConnectionFactory cf = new CachingConnectionFactory(rabbitHost, rabbitPort);
+        cf.setUsername(rabbitUser);
+        cf.setPassword(rabbitPass);
 
         // 🔥 Tuning
-        cf.setRequestedHeartBeat(30);          // compatível com rabbitmq.conf
-        cf.setConnectionTimeout(30000);        // 30s
-        cf.setChannelCacheSize(100);           // canais em cache
+        cf.setRequestedHeartBeat(30);
+        cf.setConnectionTimeout(30000);
+        cf.setChannelCacheSize(100);
         cf.setCacheMode(CachingConnectionFactory.CacheMode.CHANNEL);
 
         return cf;
@@ -49,12 +65,11 @@ public class RabbitConfig {
         factory.setConnectionFactory(coregateConnectionFactory);
         factory.setMessageConverter(rabbitJsonConverter());
 
-        // 🔥 A MÁGICA DO THROUGHPUT
         factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
         factory.setConcurrentConsumers(4);
         factory.setMaxConcurrentConsumers(16);
         factory.setPrefetchCount(50);
-        factory.setDefaultRequeueRejected(false); // evita redelivery infinito
+        factory.setDefaultRequeueRejected(false);
 
         return factory;
     }

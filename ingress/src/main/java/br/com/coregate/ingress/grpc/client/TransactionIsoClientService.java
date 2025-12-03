@@ -20,9 +20,9 @@ public class TransactionIsoClientService {
     @Value("${grpc.finalizer.deadline.ms:2500}")
     private long deadlineMs;
 
-    public ResponseTransactionIsoProto callGrpc(RequestTransactionIsoProto request, int port) {
+    public ResponseTransactionIsoProto callGrpc(RequestTransactionIsoProto request, String host, int port) {
         String txId = request.getTransactionId();
-        var stub = transactionIsoClientFactory.stub(port);
+        var stub = transactionIsoClientFactory.stub(host, port);
 
         try {
             long start = System.nanoTime();

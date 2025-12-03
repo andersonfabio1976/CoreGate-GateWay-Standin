@@ -1,24 +1,25 @@
+version: "3.9"
+
 services:
-  # ======================
-  # 🐇 RabbitMQ
-  # ======================
+
+  # ==========================================================
+  # 🐇 RABBITMQ
+  # ==========================================================
   coregate-rabbitmq:
     image: rabbitmq:3.13-management
     container_name: coregate-rabbitmq
     hostname: coregate-rabbit
-    restart: unless-stopped
+    restart: always
     environment:
       RABBITMQ_DEFAULT_USER: coregate
       RABBITMQ_DEFAULT_PASS: coregate
       RABBITMQ_DEFAULT_VHOST: /
-    env_file:
-      - ./env/rabbit.env
     ports:
-      - "5672:5672"     # conexão AMQP
-      - "15672:15672"   # painel de controle web
+      - "5672:5672"     # AMQP
+      - "15672:15672"   # painel
     volumes:
-      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
       - ./data/rabbit:/var/lib/rabbitmq
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     networks:
       - coregate-net
     healthcheck:
@@ -27,16 +28,17 @@ services:
       timeout: 5s
       retries: 5
 
-
-  # ======================
-  # 🗃️ Oracle Database
-  # ======================
+  # ==========================================================
+  # 🗄 ORACLE XE 21
+  # ==========================================================
   coregate-oracle:
     image: gvenzl/oracle-xe:21-slim
     container_name: coregate-oracle
     restart: always
-    env_file:
-      - ./env/oracle.env
+    environment:
+      ORACLE_PASSWORD: coregate
+      APP_USER: coregate
+      APP_USER_PASSWORD: coregate
     ports:
       - "1521:1521"
       - "5500:5500"
@@ -45,81 +47,63 @@ services:
     networks:
       - coregate-net
     healthcheck:
-      test: [ "CMD-SHELL", "echo 'SELECT 1 FROM DUAL;' | sqlplus -s coregate/coregate@//localhost:1521/XEPDB1" ]
-      interval: 20s
-      timeout: 10s
-      retries: 5
+      test: ["CMD-SHELL", "echo 'SELECT 1 FROM dual;' | sqlplus -s coregate/coregate@//localhost:1521/XE"]
+      interval: 30s
+      timeout: 15s
+      retries: 10
 
-  # ======================
-  # 🔴 Redis Cache
-  # ======================
+  # ==========================================================
+  # 🧠 REDIS
+  # ==========================================================
   coregate-redis:
     image: redis:7.2
     container_name: coregate-redis
     restart: always
     ports:
       - "6379:6379"
+    command: ["redis-server", "--save", "60", "1", "--loglevel", "warning"]
     volumes:
       - ./data/redis:/data
     networks:
       - coregate-net
-    command: [ "redis-server", "--save", "60", "1", "--loglevel", "warning" ]
     healthcheck:
-      test: [ "CMD-SHELL", "redis-cli ping | grep PONG" ]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-# ======================
-# 📊 GRAFANA
-# ======================
+  # ==========================================================
+  # 📊 GRAFANA
+  # ==========================================================
   grafana:
     image: grafana/grafana:10.4.2
     container_name: coregate-grafana
     restart: always
     environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_SERVER_HTTP_PORT=3000
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SERVER_HTTP_PORT: 3000
     ports:
-      - "3000:3000"  # painel web
+      - "3000:3000"
     volumes:
       - ./data/grafana:/var/lib/grafana
-      - ./dashboards/grafana:/etc/grafana/provisioning/dashboards
     depends_on:
-      - coregate-redis
       - coregate-rabbitmq
-      - coregate-oracle
+      - coregate-redis
     networks:
       - coregate-net
 
-# ======================
-# 🔍 KIBANA
-# ======================
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.12.0
-    container_name: coregate-kibana
-    restart: always
-    ports:
-      - "5601:5601"  # painel web
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-    depends_on:
-      - elasticsearch
-    networks:
-      - coregate-net
-
-# ======================
-# 🧠 Elasticsearch (necessário pro Kibana)
-# ======================
+  # ==========================================================
+  # 🧠 ELASTICSEARCH
+  # ==========================================================
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.12.0
     container_name: coregate-elasticsearch
     restart: always
     environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
     volumes:
@@ -127,10 +111,26 @@ services:
     networks:
       - coregate-net
 
+  # ==========================================================
+  # 🔍 KIBANA
+  # ==========================================================
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.12.0
+    container_name: coregate-kibana
+    restart: always
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://coregate-elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - coregate-net
 
+
+# ==========================================================
+# NETWORK + VOLUMES
+# ==========================================================
 networks:
   coregate-net:
     driver: bridge
-
-volumes:
-  rabbitmq-data:
