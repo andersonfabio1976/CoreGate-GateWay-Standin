@@ -37,7 +37,7 @@ jobs:
           echo "${{ github.event.inputs.module }}"
 
       # ===============================
-      # DEPLOY INGRESS (NÃO ALTEREI)
+      # DEPLOY INGRESS (NÃO ALTERADO)
       # ===============================
       - name: Deploy Ingress
         if: ${{ github.event.inputs.module == 'ingress' }}
@@ -66,15 +66,22 @@ jobs:
       - name: Deploy Context
         if: ${{ github.event.inputs.module == 'context' }}
         uses: appleboy/ssh-action@v1.0.3
+        env:
+          ECR_CONTEXT_REPO: ${{ secrets.ECR_CONTEXT_REPO }}
         with:
           host: ${{ secrets.HOST_CONTEXT }}
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: ECR_CONTEXT_REPO
-          ECR_CONTEXT_REPO: ${{ secrets.ECR_CONTEXT_REPO }}   # << FIX CRÍTICO AQUI
           script: |
             echo "Deploy Context"
             echo "IMAGE=$ECR_CONTEXT_REPO"
+
+            # 1) LOGIN NO ECR USANDO A ROLE DA EC2
+            aws ecr get-login-password --region us-east-1 \
+              | sudo docker login --username AWS --password-stdin 455931011666.dkr.ecr.us-east-1.amazonaws.com
+
+            # 2) PULL / STOP / RUN
             sudo docker pull $ECR_CONTEXT_REPO:latest
             sudo docker stop context || true
             sudo docker rm context || true
@@ -85,8 +92,9 @@ jobs:
               -p 8083:8080 \
               $ECR_CONTEXT_REPO:latest
 
+
       # ===============================
-      # DEPLOY ORCHESTRATOR (mantido)
+      # DEPLOY ORCHESTRATOR (CORRIGIDO)
       # ===============================
       - name: Deploy Orchestrator
         if: ${{ github.event.inputs.module == 'orchestrator' }}
@@ -96,6 +104,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: ECR_ORCHESTRATOR_REPO
+          ECR_ORCHESTRATOR_REPO: ${{ secrets.ECR_ORCHESTRATOR_REPO }}
           script: |
             echo "Deploy Orchestrator"
             echo "IMAGE=$ECR_ORCHESTRATOR_REPO"
@@ -110,7 +119,7 @@ jobs:
               $ECR_ORCHESTRATOR_REPO:latest
 
       # ===============================
-      # DEPLOY RULES (mantido)
+      # DEPLOY RULES (CORRIGIDO)
       # ===============================
       - name: Deploy Rules
         if: ${{ github.event.inputs.module == 'rules' }}
@@ -120,6 +129,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: ECR_RULES_REPO
+          ECR_RULES_REPO: ${{ secrets.ECR_RULES_REPO }}
           script: |
             echo "Deploy Rules"
             echo "IMAGE=$ECR_RULES_REPO"
@@ -134,7 +144,7 @@ jobs:
               $ECR_RULES_REPO:latest
 
       # ===============================
-      # DEPLOY FINALIZER (mantido)
+      # DEPLOY FINALIZER (CORRIGIDO)
       # ===============================
       - name: Deploy Finalizer
         if: ${{ github.event.inputs.module == 'finalizer' }}
@@ -144,6 +154,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: ECR_FINALIZER_REPO
+          ECR_FINALIZER_REPO: ${{ secrets.ECR_FINALIZER_REPO }}
           script: |
             echo "Deploy Finalizer"
             echo "IMAGE=$ECR_FINALIZER_REPO"
@@ -158,7 +169,7 @@ jobs:
               $ECR_FINALIZER_REPO:latest
 
       # ===============================
-      # DEPLOY MOCKISSUER (mantido)
+      # DEPLOY MOCKISSUER (CORRIGIDO)
       # ===============================
       - name: Deploy MockIssuer
         if: ${{ github.event.inputs.module == 'mockissuer' }}
@@ -168,6 +179,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           envs: ECR_MOCKISSUER_REPO
+          ECR_MOCKISSUER_REPO: ${{ secrets.ECR_MOCKISSUER_REPO }}
           script: |
             echo "Deploy MockIssuer"
             echo "IMAGE=$ECR_MOCKISSUER_REPO"
