@@ -30,7 +30,7 @@ public class Process {
     @Value("${grpc.finalizer.port}")
     private int grpcFinalizerPort;
 
-    @Value("${grpc.finalizer.host")
+    @Value("${grpc.finalizer.host}")
     private String grpcFinalizerHost;
 
     public OrchestratorSagaContext execute(OrchestratorSagaContext tx) {

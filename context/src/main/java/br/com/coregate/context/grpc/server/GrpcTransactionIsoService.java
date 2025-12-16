@@ -30,16 +30,19 @@ public class GrpcTransactionIsoService
     private final ParserIso8583 parserIso8583;
     private final GrpcServerComponent grpcServer;
 
-    @Value("${grpc.context.host}")
+    @Value("${grpc.orchestrator.host}")
     private String grpcHost;
 
-    @Value("${grpc.context.port}")
+    @Value("${grpc.orchestrator.port}")
     private int grpcOrchestratorPort;
+
+    @Value("${grpc.context.port}")
+    private int grpcContextPort;
 
     @PostConstruct
     public void init() {
         log.info("🧩 Parser decode and encode iso8583 to dto and consume orquestrator...");
-        grpcServer.start(this, grpcOrchestratorPort);
+        grpcServer.start(this, grpcContextPort);
     }
 
     @Override
