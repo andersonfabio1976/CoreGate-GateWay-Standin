@@ -12,5 +12,5 @@ coregate:
 
 grpc:
   context:
-    host: 98.83.72.102
+    host: localhost
     port: 8090

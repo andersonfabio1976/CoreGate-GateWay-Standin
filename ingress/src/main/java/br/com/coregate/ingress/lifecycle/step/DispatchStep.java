@@ -37,7 +37,7 @@ public class DispatchStep {
     @Value("${grpc.context.port}")
     private int grpcContextPort;
 
-    @Value("$grpc.context.host}")
+    @Value("${grpc.context.host}")
     private String grpcContextHost;
 
 

@@ -17,7 +17,7 @@ spring:
 
 mockpos:
   # 🔹 Host e porta do servidor Ingress (Netty)
-  host: 98.95.251.18
+  host: localhost
   port: 8583
 
   # 🔹 Quantidade inicial de terminais (POS) simulados

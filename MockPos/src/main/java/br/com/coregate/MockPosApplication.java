@@ -210,10 +210,8 @@ public class MockPosApplication implements CommandLineRunner {
 
             } catch (Exception e) {
                 totalErrors.incrementAndGet();
-                log.error("❌ Erro ao conectar ao Ingress {}:{} — {}", host, port, e.toString());
                 try { Thread.sleep(800); } catch (InterruptedException ignored) {}
             }
-
         }
     }
 

@@ -18,7 +18,7 @@ grpc:
     threads: 64
 
   finalizer:
-    host: 52.73.51.226
+    host: localhost
     port: 8092
   rules:
     host: localhost

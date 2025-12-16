@@ -30,10 +30,10 @@ public class GrpcTransactionIsoService
     private final ParserIso8583 parserIso8583;
     private final GrpcServerComponent grpcServer;
 
-    @Value("${grpc.orchestrator.host}")
+    @Value("${grpc.context.host}")
     private String grpcHost;
 
-    @Value("${grpc.orchestrator.port}")
+    @Value("${grpc.context.port}")
     private int grpcOrchestratorPort;
 
     @PostConstruct
